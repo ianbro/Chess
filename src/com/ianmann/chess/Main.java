@@ -1,5 +1,7 @@
 package com.ianmann.chess;
 	
+import com.ianmann.chess.game.movement.Orientation;
+
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
@@ -9,6 +11,8 @@ import javafx.scene.layout.BorderPane;
 public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
+		Orientation.initRelativeOrientation();
+		
 		try {
 			BorderPane root = new BorderPane();
 			Scene scene = new Scene(root,400,400);
