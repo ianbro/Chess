@@ -258,4 +258,54 @@ public class Board {
 		}
 		return false;
 	}
+	
+	/**
+	 * Moves a piece from the square at _fromCoordinate to the square at _toCoordinate.
+	 * This will return true if the piece was successfully moved or false if not. If
+	 * either of the squares are not found, the from square doesn't' contain a piece
+	 * or the to square has a piece of the same team as that in to square, nothing
+	 * will happen and false will be returned.
+	 * @param _fromCoordinates
+	 * @param _toCoordinates
+	 * @return
+	 */
+	public boolean movePiece(String _fromCoordinates, String _toCoordinates) {
+		Square fromSquare = this.squares.get(_fromCoordinates);
+		Square toSquare = this.squares.get(_toCoordinates);
+		
+		if (fromSquare == null || toSquare == null) {
+			return false;
+		}
+		if (!fromSquare.hasPiece()) {
+			return false;
+		}
+		if (toSquare.hasPiece(fromSquare.getPiece().team)) {
+			return false;
+		}
+
+		return toSquare.placePiece(fromSquare.getPiece());
+	}
+	
+	/**
+	 * Moves a piece from _fromSquare to _toSquare. This will return true if the piece
+	 * was successfully moved or false if not. If either of the squares are not found,
+	 * the from square doesn't' contain a piece or the to square has a piece of the same
+	 * team as that in to square, nothing will happen and false will be returned.
+	 * @param _fromCoordinates
+	 * @param _toCoordinates
+	 * @return
+	 */
+	public boolean movePiece(Square _fromSquare, Square _toSquare) {
+		if (_fromSquare == null || _toSquare == null) {
+			return false;
+		}
+		if (!_fromSquare.hasPiece()) {
+			return false;
+		}
+		if (_toSquare.hasPiece(_fromSquare.getPiece().team)) {
+			return false;
+		}
+
+		return _toSquare.placePiece(_fromSquare.getPiece());
+	}
 }

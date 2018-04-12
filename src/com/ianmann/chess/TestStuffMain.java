@@ -10,7 +10,9 @@ import java.util.Scanner;
 
 import com.ianmann.chess.game.Board;
 import com.ianmann.chess.game.Game;
+import com.ianmann.chess.game.Piece;
 import com.ianmann.chess.game.TeamColor;
+import com.ianmann.chess.game.movement.Orientation;
 import com.ianmann.chess.game.movement.Square;
 import com.ianmann.chess.game.pieces.King;
 import com.ianmann.chess.game.pieces.Knight;
@@ -30,17 +32,20 @@ public class TestStuffMain {
 	 */
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
+		Orientation.initRelativeOrientation();
+		
 		Game game = new Game();
+		
+		Piece testPiece = game.getBoard().squares.get("3-6").getPiece();
 		
 		Scanner s = new Scanner(System.in);
 		while (true) {
 			System.out.println(game.getBoard());
+			System.out.println(testPiece.getPaths());
 			String input = s.nextLine();
 			if (input.equals("done")) { break; }
 			String[] inputSquares = input.split(">");
-			Square from = game.getBoard().squares.get(inputSquares[0]);
-			Square to = game.getBoard().squares.get(inputSquares[1]);
-			to.placePiece(from.getPiece());
+			game.getBoard().movePiece(inputSquares[0], inputSquares[1]);
 		}
 		s.close();
 	}

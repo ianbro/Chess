@@ -10,6 +10,7 @@ import java.util.LinkedList;
 
 import com.ianmann.chess.game.Board;
 import com.ianmann.chess.game.Piece;
+import com.ianmann.chess.game.TeamColor;
 
 /**
  * <p>
@@ -361,6 +362,19 @@ public class Square {
 	 */
 	public boolean hasPiece() {
 		return this.piece != null;
+	}
+	
+	/**
+	 * Returns whether or not this square contains a piece of the specified
+	 * color. If it does have a piece, but of the other color, false is still
+	 * returned.
+	 * @return
+	 */
+	public boolean hasPiece(TeamColor _team) {
+		if (this.piece == null) {
+			return false;
+		}
+		return this.piece.team == _team;
 	}
 	
 	/**

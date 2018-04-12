@@ -8,6 +8,7 @@ package com.ianmann.chess.game.pieces;
 
 import java.util.ArrayList;
 
+import com.ianmann.chess.game.Game;
 import com.ianmann.chess.game.Piece;
 import com.ianmann.chess.game.TeamColor;
 import com.ianmann.chess.game.movement.MovementPath;
@@ -24,8 +25,8 @@ public class Queen extends Piece {
 	/**
 	 * @param _team
 	 */
-	public Queen(TeamColor _team) {
-		super(_team);
+	public Queen(Game _game, TeamColor _team) {
+		super(_game, _team);
 	}
 
 	/* (non-Javadoc)

@@ -22,7 +22,7 @@ public enum Orientation {
 	 * The orientations relative to each one according to the direction
 	 * in each corresponding key.
 	 */
-	public HashMap<Direction, Orientation> relativeOrientations;
+	public HashMap<Direction, Orientation> relativeOrientations = new HashMap<Direction, Orientation>();
 	
 	/**
 	 * Set the relative directions for each directions according to

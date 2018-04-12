@@ -47,23 +47,19 @@ public class MovementPath extends LinkedList<Square> {
 	private boolean isContinuous;
 	
 	/**
-	 * Determines whether or not this path is diagonal. If
-	 * this is true, then only squares along the diagonal
-	 * path are considered points on this path, and not
-	 * the vertical/horizontal path squares.
-	 */
-	private boolean isDiagonal;
-	
-	/**
 	 * Instantiate an abstraction of a path of movement that a
 	 * game piece can take.
 	 * @param _root
+	 * @param _orientation
+	 * @param _isContinuous Represents whether or not this path is a continuous path
+	 * (movement can end at any point along this path) or a
+	 * destination path (movement can only end at the end of this
+	 * path).
 	 */
-	public MovementPath(Square _root, Orientation _orientation, boolean _isCountinuous, boolean _isDiagonal) {
+	public MovementPath(Square _root, Orientation _orientation, boolean _isContinuous) {
 		this.root = _root;
 		this.orientation = _orientation;
-		this.isContinuous = _isCountinuous;
-		this.isDiagonal = _isDiagonal;
+		this.isContinuous = _isContinuous;
 	}
 	
 	/**
@@ -143,6 +139,36 @@ public class MovementPath extends LinkedList<Square> {
 	}
 	
 	/**
+	 * <p>
+	 * Adds up to [_length] number of squares in the given two direction of this square.
+	 * The number of squares that were added is returned. There may not be _length
+	 * number of squares in this direction due to the edge of the board.
+	 * </p>
+	 * <p>
+	 * The number returned skips will only include squares along the diagonal path, and
+	 * not the vertical/horizontal path squares.
+	 * </p>
+	 * @param length
+	 * @return
+	 */
+	public int buildDiagonal(Direction _sideWays, Direction _verticle, int _length) {
+		int count = 0;
+		for (; count < _length; count ++) {
+			Square neighbor = this.root.neighbor(this.orientation, _sideWays);
+			if (neighbor == null) {
+				return count;
+			}
+			Square diagNeighbor = neighbor.neighbor(this.orientation, _verticle);
+			if (diagNeighbor == null) {
+				return count;
+			}
+
+			this.add(diagNeighbor);
+		}
+		return count;
+	}
+	
+	/**
 	 * Adds up to [_length] number of squares in the given direction of this square.
 	 * The number of squares that were added is returned. There may not be _length
 	 * number of squares in this direction due to the edge of the board.
@@ -160,5 +186,24 @@ public class MovementPath extends LinkedList<Square> {
 			this.add(neighbor);
 		}
 		return count;
+	}
+	
+	/**
+	 * Determines whether or not this path includes a destination point that is the
+	 * given _square. Note that just because this path might pass through this square
+	 * does not always mean that the piece following this path can end on that square.
+	 * For example, knights can only end their turn at the end of their path, not
+	 * anywhere within.
+	 * @param _square
+	 * @return
+	 */
+	public boolean containsDestination(Square _square) {
+		if (!this.isContinuous) {
+			return this.getLast().equals(_square);
+		}
+		if (this.isContinuous) {
+			return this.contains(_square);
+		}
+		return false;
 	}
 }

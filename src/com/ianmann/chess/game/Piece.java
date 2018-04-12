@@ -51,7 +51,8 @@ public abstract class Piece {
 	 */
 	public abstract ArrayList<MovementPath> getPaths();
 	
-	public Piece(TeamColor _team) {
+	public Piece(Game _game, TeamColor _team) {
+		this.game = _game;
 		this.team = _team;
 	}
 	
@@ -62,5 +63,22 @@ public abstract class Piece {
 	 */
 	public Orientation getOrientation() {
 		return this.game.getOrientations().get(this.team);
+	}
+	
+	/**
+	 * Determines whether or not this piece can move to the given destination.
+	 * This is done by looping through all the paths found in {@link this#getPaths()}
+	 * and looking to see if any of those paths contain _destination as a
+	 * possible square that this piece can land on.
+	 * @param _destination
+	 * @return
+	 */
+	public boolean canMove(Square _destination) {
+		for (MovementPath path : this.getPaths()) {
+			if (path.containsDestination(_destination) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

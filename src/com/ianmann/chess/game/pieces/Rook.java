@@ -8,6 +8,7 @@ package com.ianmann.chess.game.pieces;
 
 import java.util.ArrayList;
 
+import com.ianmann.chess.game.Game;
 import com.ianmann.chess.game.Piece;
 import com.ianmann.chess.game.TeamColor;
 import com.ianmann.chess.game.movement.MovementPath;
@@ -24,8 +25,8 @@ public class Rook extends Piece {
 	/**
 	 * @param _team
 	 */
-	public Rook(TeamColor _team) {
-		super(_team);
+	public Rook(Game _game, TeamColor _team) {
+		super(_game, _team);
 	}
 
 	/* (non-Javadoc)

@@ -44,7 +44,11 @@ public class Game {
 	/**
 	 * Maps each team to the direction that they are facing.
 	 */
-	private HashMap<TeamColor, Orientation> orientations;
+	private HashMap<TeamColor, Orientation> orientations = new HashMap<TeamColor, Orientation>()
+	{{
+		put (TeamColor.WHITE, Orientation.SOUTH);
+		put (TeamColor.BLACK, Orientation.NORTH);
+	}};
 	
 	/**
 	 * The board that this game controls.
@@ -98,46 +102,54 @@ public class Game {
 	 */
 	public Game() {
 		this.board = new Board();
-		this.spawnTeam(TeamColor.WHITE);
-		this.spawnTeam(TeamColor.BLACK);
+		this.initTeam(TeamColor.WHITE);
+		this.initTeam(TeamColor.BLACK);
 	}
 	
+	public void initTeam(TeamColor _team) {
+		this.spawnTeam(_team);
+	}
+	
+	/**
+	 * Places the initial pieces on the board for a given team.
+	 * @param _team
+	 */
 	public void spawnTeam(TeamColor _team) {
 		ArrayList<Piece> pieces = this.livePieces.get(_team);
-		Rook r1 = new Rook(_team);
+		Rook r1 = new Rook(this, _team);
 		pieces.add(r1);
 		this.board.spawnPiece(r1);
 
-		Rook r2 = new Rook(_team);
+		Rook r2 = new Rook(this, _team);
 		pieces.add(r2);
 		this.board.spawnPiece(r2);
 		
-		Knight n1 = new Knight(_team);
+		Knight n1 = new Knight(this, _team);
 		pieces.add(n1);
 		this.board.spawnPiece(n1);
 		
-		Knight n2 = new Knight(_team);
+		Knight n2 = new Knight(this, _team);
 		pieces.add(n2);
 		this.board.spawnPiece(n2);
 		
-		Bishop b1 = new Bishop(_team);
+		Bishop b1 = new Bishop(this, _team);
 		pieces.add(b1);
 		this.board.spawnPiece(b1);
 		
-		Bishop b2 = new Bishop(_team);
+		Bishop b2 = new Bishop(this, _team);
 		pieces.add(b2);
 		this.board.spawnPiece(b2);
 		
-		Queen q = new Queen(_team);
+		Queen q = new Queen(this, _team);
 		pieces.add(q);
 		this.board.spawnPiece(q);
 		
-		King k = new King(_team);
+		King k = new King(this, _team);
 		pieces.add(k);
 		this.board.spawnPiece(k);
 		
 		for (int i = 0; i < this.board.width; i ++) {
-			Pawn p = new Pawn(_team);
+			Pawn p = new Pawn(this, _team);
 			pieces.add(p);
 			this.board.spawnPiece(p);
 		}

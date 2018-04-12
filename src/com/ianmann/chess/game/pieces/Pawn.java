@@ -8,9 +8,11 @@ package com.ianmann.chess.game.pieces;
 
 import java.util.ArrayList;
 
+import com.ianmann.chess.game.Game;
 import com.ianmann.chess.game.Piece;
 import com.ianmann.chess.game.TeamColor;
 import com.ianmann.chess.game.movement.MovementPath;
+import com.ianmann.chess.game.movement.Square;
 import com.ianmann.chess.game.movement.Direction;
 
 /**
@@ -25,8 +27,8 @@ public class Pawn extends Piece {
 	/**
 	 * @param _team
 	 */
-	public Pawn(TeamColor _team) {
-		super(_team);
+	public Pawn(Game _game, TeamColor _team) {
+		super(_game, _team);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -45,14 +47,26 @@ public class Pawn extends Piece {
 		// TODO Auto-generated method stub
 		ArrayList<MovementPath> paths = new ArrayList<MovementPath>();
 
-		MovementPath pathForward = new MovementPath(this.location, this.getOrientation(), false, false);
+		MovementPath pathForward = new MovementPath(this.location, this.getOrientation(), false);
 		pathForward.build(Direction.FORWARD, 1);
 		paths.add(pathForward);
 		
-		if (this.hasMoved) {
-			MovementPath pathForwardDouble = new MovementPath(this.location, this.getOrientation(), false, false);
+		if (!this.hasMoved) {
+			MovementPath pathForwardDouble = new MovementPath(this.location, this.getOrientation(), false);
 			pathForwardDouble.build(Direction.FORWARD, 2);
 			paths.add(pathForwardDouble);
+		}
+		
+		MovementPath pathForwardDiagRight = new MovementPath(this.location, this.getOrientation(), false);
+		pathForwardDiagRight.buildDiagonal(Direction.FORWARD, Direction.RIGHT, 1);
+		if (pathForwardDiagRight.getLast().hasPiece() && !pathForwardDiagRight.getLast().hasPiece(this.team)) {
+			paths.add(pathForwardDiagRight);
+		}
+		
+		MovementPath pathForwardDiagLeft = new MovementPath(this.location, this.getOrientation(), false);
+		pathForwardDiagRight.buildDiagonal(Direction.FORWARD, Direction.LEFT, 1);
+		if (pathForwardDiagLeft.getLast().hasPiece() && !pathForwardDiagLeft.getLast().hasPiece(this.team)) {
+			paths.add(pathForwardDiagLeft);
 		}
 		
 		return paths;
