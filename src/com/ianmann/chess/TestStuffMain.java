@@ -36,11 +36,11 @@ public class TestStuffMain {
 		
 		Game game = new Game();
 		
-		Piece testPiece = game.getBoard().squares.get("3-6").getPiece();
+		Piece testPiece = game.getBoard().squares.get("7-7").getPiece();
 		
 		Scanner s = new Scanner(System.in);
 		while (true) {
-			System.out.println(game.getBoard());
+			System.out.println(game.getBoard().toBoardString());
 			System.out.println(testPiece.getPaths());
 			String input = s.nextLine();
 			if (input.equals("done")) { break; }

@@ -10,6 +10,8 @@ import java.time.chrono.IsoChronology;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import com.ianmann.chess.game.TeamColor;
+
 /**
  * <p>
  * Represents a collection of {@link Square}s that a piece can
@@ -47,6 +49,12 @@ public class MovementPath extends LinkedList<Square> {
 	private boolean isContinuous;
 	
 	/**
+	 * The team that this path is relative to. This is used to ensure that the path does
+	 * not allow the piece following it to end on squares with pieces of their own team.
+	 */
+	private TeamColor team;
+	
+	/**
 	 * Instantiate an abstraction of a path of movement that a
 	 * game piece can take.
 	 * @param _root
@@ -55,87 +63,13 @@ public class MovementPath extends LinkedList<Square> {
 	 * (movement can end at any point along this path) or a
 	 * destination path (movement can only end at the end of this
 	 * path).
+	 * @param _team The team that this path is relative to.
 	 */
-	public MovementPath(Square _root, Orientation _orientation, boolean _isContinuous) {
+	public MovementPath(Square _root, Orientation _orientation, boolean _isContinuous, TeamColor _team) {
 		this.root = _root;
 		this.orientation = _orientation;
 		this.isContinuous = _isContinuous;
-	}
-	
-	/**
-	 * Adds up to [_length] number of squares to the north of this square.
-	 * The number of squares that were added is returned. There may not be _length
-	 * number of squares in this direction due to the edge of the board.
-	 * @param length
-	 * @return
-	 */
-	public int buildNorth(int _length) {
-		int count = 0;
-		for (; count < _length; count ++) {
-			if (this.root.getNorthNeighbor() == null) {
-				return count;
-			}
-
-			this.add(this.root.getNorthNeighbor());
-		}
-		return count;
-	}
-	
-	/**
-	 * Adds up to [_length] number of squares to the east of this square.
-	 * The number of squares that were added is returned. There may not be _length
-	 * number of squares in this direction due to the edge of the board.
-	 * @param length
-	 * @return
-	 */
-	public int buildEast(int _length) {
-		int count = 0;
-		for (; count < _length; count ++) {
-			if (this.root.getEastNeighbor() == null) {
-				return count;
-			}
-
-			this.add(this.root.getEastNeighbor());
-		}
-		return count;
-	}
-	
-	/**
-	 * Adds up to [_length] number of squares to the west of this square.
-	 * The number of squares that were added is returned. There may not be _length
-	 * number of squares in this direction due to the edge of the board.
-	 * @param length
-	 * @return
-	 */
-	public int buildWest(int _length) {
-		int count = 0;
-		for (; count < _length; count ++) {
-			if (this.root.getWestNeighbor() == null) {
-				return count;
-			}
-
-			this.add(this.root.getWestNeighbor());
-		}
-		return count;
-	}
-	
-	/**
-	 * Adds up to [_length] number of squares to the south of this square.
-	 * The number of squares that were added is returned. There may not be _length
-	 * number of squares in this direction due to the edge of the board.
-	 * @param length
-	 * @return
-	 */
-	public int buildSouth(int _length) {
-		int count = 0;
-		for (; count < _length; count ++) {
-			if (this.root.getSouthNeighbor() == null) {
-				return count;
-			}
-
-			this.add(this.root.getSouthNeighbor());
-		}
-		return count;
+		this.team = _team;
 	}
 	
 	/**
@@ -153,8 +87,9 @@ public class MovementPath extends LinkedList<Square> {
 	 */
 	public int buildDiagonal(Direction _sideWays, Direction _verticle, int _length) {
 		int count = 0;
+		Square current = this.root;
 		for (; count < _length; count ++) {
-			Square neighbor = this.root.neighbor(this.orientation, _sideWays);
+			Square neighbor = current.neighbor(this.orientation, _sideWays);
 			if (neighbor == null) {
 				return count;
 			}
@@ -163,6 +98,7 @@ public class MovementPath extends LinkedList<Square> {
 				return count;
 			}
 
+			current = neighbor;
 			this.add(diagNeighbor);
 		}
 		return count;
@@ -177,15 +113,49 @@ public class MovementPath extends LinkedList<Square> {
 	 */
 	public int build(Direction _direction, int _length) {
 		int count = 0;
+		Square current = this.root;
 		for (; count < _length; count ++) {
-			Square neighbor = this.root.neighbor(this.orientation, _direction);
+			Square neighbor = current.neighbor(this.orientation, _direction);
 			if (neighbor == null) {
 				return count;
 			}
-
+			
+			current = neighbor;
 			this.add(neighbor);
 		}
 		return count;
+	}
+	
+	/**
+	 * Does last second checks along the path assuming that no more squares will
+	 * be added to the path. This mainly evaluates the ability for the piece along
+	 * this path to jump over pieces.
+	 * @param _canJump Determines whether or not the piece following this path may
+	 * jump over pieces in the way.
+	 */
+	public boolean finish(boolean _canJump) {
+		if (!_canJump) {
+			for (int i = 0; i < this.size(); i ++) {
+				Square square = this.get(i);
+				if (this.isContinuous) {
+					if (square.hasPiece()) {
+						int startRemovingIndex = i;
+						int origSize = this.size();
+						if (square.getPiece().team != this.team)
+							startRemovingIndex ++;
+						for (; startRemovingIndex < origSize; startRemovingIndex ++) {
+							this.removeLast();
+						}
+					}
+				} else {
+					if (!this.getLast().equals(square) && square.hasPiece())
+						this.clear();
+					else if (this.getLast().equals(square) && square.hasPiece(this.team))
+						this.clear();
+				}
+			}
+		}
+		return this.size() > 0;
 	}
 	
 	/**

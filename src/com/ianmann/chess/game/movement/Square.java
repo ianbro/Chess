@@ -350,9 +350,33 @@ public class Square {
 	public boolean placePiece(Piece _piece) {
 		if (this.hasPiece()) { return false; }
 		this.piece = _piece;
-		if (this.piece.location != null)
-			this.piece.location.piece = null;
-		this.piece.location = this;
+		if (this.piece.getLocation() != null)
+			this.piece.getLocation().piece = null;
+		this.piece.markMovedTo(this);
+		return true;
+	}
+	
+	/**
+	 * Places the specified piece in this square, setting the
+	 * piece attribute of this square. If there already exist
+	 * a piece in this square, the specified _piece is not
+	 * placed in this square and false is returned.
+	 * </p>
+	 * <p>
+	 * This is different from {@link this#placePiece(Piece)}
+	 * because it calls {@link Piece#spawn(Square)} instead of
+	 * {@link Piece#markMovedTo(Square)} so that any movement
+	 * logic is not called.
+	 * </p>
+	 * @param _piece
+	 * @return
+	 */
+	public boolean spawnPiece(Piece _piece) {
+		if (this.hasPiece()) { return false; }
+		this.piece = _piece;
+		if (this.piece.getLocation() != null)
+			this.piece.getLocation().piece = null;
+		this.piece.spawn(this);
 		return true;
 	}
 	
@@ -398,7 +422,7 @@ public class Square {
 	 * </p>
 	 * @return
 	 */
-	public String toString() {
+	public String toSquareString() {
 		String str = "|--------|\n";
 		str = str +  "|   xy   |\n".replace("x", Integer.toString(this.x)).replace("y", Integer.toString(this.y));
 		if (this.hasPiece()) {
@@ -458,5 +482,13 @@ public class Square {
 		str = str + "|\n";
 
 		return str;
+	}
+	
+	/**
+	 * Returns a string representation of this square's data. This simply prints
+	 * out the coordinates for the square and the piece (if any) that is on it.
+	 */
+	public String toString() {
+		return this.coordinateString() + ":" + this.getPiece();
 	}
 }

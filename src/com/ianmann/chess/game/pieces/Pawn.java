@@ -38,35 +38,58 @@ public class Pawn extends Piece {
 	 * pawn can move the double first move.
 	 */
 	private boolean hasMoved = false;
+	
+	/* (non-Javadoc)
+	 * @see com.ianmann.chess.game.Piece#markMovedTo(com.ianmann.chess.game.movement.Square)
+	 */
+	/**
+	 * @Override
+	 * Pawns cannot move more than one square at a time once they take their first move.
+	 * This method will mark that this pawn has already moved and therefore may not move
+	 * more than one square at a time in the future.
+	 */
+	public void markMovedTo(Square _location) {
+		super.markMovedTo(_location);
+		this.hasMoved = true;
+	}
 
 	/* (non-Javadoc)
 	 * @see com.ianmann.chess.game.Piece#getPaths()
 	 */
-	@Override
+	/**
+	 * @Override Pawns may move forward one space if not blocked by any other piece. They may
+	 * also attack diagonally to the right or left if able to but may not move diagonally if
+	 * not attacking. If a pawn has not moved in the game yet, they may move forward 2 squares.
+	 */
 	public ArrayList<MovementPath> getPaths() {
 		// TODO Auto-generated method stub
 		ArrayList<MovementPath> paths = new ArrayList<MovementPath>();
 
-		MovementPath pathForward = new MovementPath(this.location, this.getOrientation(), false);
+		MovementPath pathForward = new MovementPath(this.location, this.getOrientation(), false, this.team);
 		pathForward.build(Direction.FORWARD, 1);
-		paths.add(pathForward);
+		if (pathForward.size() > 0 && pathForward.finish(false) && !pathForward.getLast().hasPiece())
+			paths.add(pathForward);
 		
 		if (!this.hasMoved) {
-			MovementPath pathForwardDouble = new MovementPath(this.location, this.getOrientation(), false);
+			MovementPath pathForwardDouble = new MovementPath(this.location, this.getOrientation(), false, this.team);
 			pathForwardDouble.build(Direction.FORWARD, 2);
-			paths.add(pathForwardDouble);
+			if (pathForwardDouble.size() > 0 && pathForwardDouble.finish(false) && !pathForwardDouble.getLast().hasPiece())
+				paths.add(pathForwardDouble);
 		}
 		
-		MovementPath pathForwardDiagRight = new MovementPath(this.location, this.getOrientation(), false);
+		MovementPath pathForwardDiagRight = new MovementPath(this.location, this.getOrientation(), false, this.team);
 		pathForwardDiagRight.buildDiagonal(Direction.FORWARD, Direction.RIGHT, 1);
-		if (pathForwardDiagRight.getLast().hasPiece() && !pathForwardDiagRight.getLast().hasPiece(this.team)) {
-			paths.add(pathForwardDiagRight);
+		if (pathForwardDiagRight.size() > 0 && pathForwardDiagRight.getLast().hasPiece()
+								&& !pathForwardDiagRight.getLast().hasPiece(this.team)) {
+			if (pathForwardDiagRight.finish(false))
+				paths.add(pathForwardDiagRight);
 		}
 		
-		MovementPath pathForwardDiagLeft = new MovementPath(this.location, this.getOrientation(), false);
-		pathForwardDiagRight.buildDiagonal(Direction.FORWARD, Direction.LEFT, 1);
-		if (pathForwardDiagLeft.getLast().hasPiece() && !pathForwardDiagLeft.getLast().hasPiece(this.team)) {
-			paths.add(pathForwardDiagLeft);
+		MovementPath pathForwardDiagLeft = new MovementPath(this.location, this.getOrientation(), false, this.team);
+		pathForwardDiagLeft.buildDiagonal(Direction.FORWARD, Direction.LEFT, 1);
+		if (pathForwardDiagLeft.size() > 0 && pathForwardDiagLeft.getLast().hasPiece() && !pathForwardDiagLeft.getLast().hasPiece(this.team)) {
+			if (pathForwardDiagLeft.finish(false))
+				paths.add(pathForwardDiagLeft);
 		}
 		
 		return paths;

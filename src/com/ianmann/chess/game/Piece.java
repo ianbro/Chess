@@ -38,8 +38,32 @@ public abstract class Piece {
 	/**
 	 * The current location of this piece on the board.
 	 */
-	public Square location;
+	protected Square location;
 	
+	/**
+	 * Returns the location of this piece on the board.
+	 * @return
+	 */
+	public Square getLocation() {
+		return location;
+	}
+
+	/**
+	 * Sets the location of this piece on the board.
+	 * @param _location The location that this piece will move.
+	 */
+	public void markMovedTo(Square _location) {
+		this.location = _location;
+	}
+	
+	/**
+	 * Sets the location of this piece on the board for the first time.
+	 * @param _location
+	 */
+	public void spawn(Square _location) {
+		this.location = _location;
+	}
+
 	/**
 	 * The initial for this piece type.
 	 */
@@ -80,5 +104,13 @@ public abstract class Piece {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Returns a string representation of this piece. This returns the initials for
+	 * it's color and piece type.
+	 */
+	public String toString() {
+		return this.team.initial + this.initial();
 	}
 }

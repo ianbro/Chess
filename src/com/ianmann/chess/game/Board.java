@@ -226,7 +226,7 @@ public class Board {
 	 * Returns a string representation of this board. This prints out
 	 * every square with its coordinates and piece.
 	 */
-	public String toString() {
+	public String toBoardString() {
 		String str = "";
 		Square currentSquare = this.rootSquare;
 		while (currentSquare != null) {
@@ -252,7 +252,7 @@ public class Board {
 		ArrayList<Square> locations = this.startingPositions.get(_piece.team).get(_piece.getClass());
 		for (Square square : locations) {
 			if (!square.hasPiece()) {
-				square.placePiece(_piece);
+				square.spawnPiece(_piece);
 				return true;
 			}
 		}
@@ -272,16 +272,14 @@ public class Board {
 	public boolean movePiece(String _fromCoordinates, String _toCoordinates) {
 		Square fromSquare = this.squares.get(_fromCoordinates);
 		Square toSquare = this.squares.get(_toCoordinates);
-		
-		if (fromSquare == null || toSquare == null) {
+		if (fromSquare.hasPiece())
+			if (!fromSquare.getPiece().canMove(toSquare)) return false;
+		if (fromSquare == null || toSquare == null)
 			return false;
-		}
-		if (!fromSquare.hasPiece()) {
+		if (!fromSquare.hasPiece())
 			return false;
-		}
-		if (toSquare.hasPiece(fromSquare.getPiece().team)) {
+		if (toSquare.hasPiece(fromSquare.getPiece().team))
 			return false;
-		}
 
 		return toSquare.placePiece(fromSquare.getPiece());
 	}
@@ -296,15 +294,14 @@ public class Board {
 	 * @return
 	 */
 	public boolean movePiece(Square _fromSquare, Square _toSquare) {
-		if (_fromSquare == null || _toSquare == null) {
+		if (_fromSquare.hasPiece())
+			if (!_fromSquare.getPiece().canMove(_toSquare)) return false;
+		if (_fromSquare == null || _toSquare == null)
 			return false;
-		}
-		if (!_fromSquare.hasPiece()) {
+		if (!_fromSquare.hasPiece())
 			return false;
-		}
-		if (_toSquare.hasPiece(_fromSquare.getPiece().team)) {
+		if (_toSquare.hasPiece(_fromSquare.getPiece().team))
 			return false;
-		}
 
 		return _toSquare.placePiece(_fromSquare.getPiece());
 	}
