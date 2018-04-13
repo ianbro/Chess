@@ -45,6 +45,8 @@ public class TestStuffMain {
 			String input = s.nextLine();
 			if (input.equals("done")) { break; }
 			String[] inputSquares = input.split(">");
+			if (game.getBoard().squares.get(inputSquares[0]).hasPiece())
+				testPiece = game.getBoard().squares.get(inputSquares[0]).getPiece();
 			game.getBoard().movePiece(inputSquares[0], inputSquares[1]);
 		}
 		s.close();

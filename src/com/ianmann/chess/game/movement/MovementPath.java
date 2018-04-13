@@ -30,9 +30,26 @@ public class MovementPath extends LinkedList<Square> {
 	private Square root;
 	
 	/**
+	 * As this bath is being built, each time a square is added, it is set as this attribute.
+	 * This represents the square that the next build will build off of. This way, it doesn't
+	 * keep building off the root. We can't use {@link this#getLast()} because it starts as
+	 * {@link this#root} but root isn't added in this lists items so it can't be retrieved from
+	 * {@link this#getLast()}.
+	 */
+	private Square currentBuild;
+	
+	/**
 	 * The forward orientation of this path.
 	 */
 	private Orientation orientation;
+	
+	/**
+	 * Determines if this path can still be added to. If a path cannot be build, this is set
+	 * to false so that later calls to {@link this#build(Direction, int)} don't accidentally
+	 * build on to an invalid path. Nothing will be added to this path and this path will be
+	 * completely wiped if this is set to false.
+	 */
+	private boolean isValid = true;
 	
 	/**
 	 * <p>
@@ -67,6 +84,7 @@ public class MovementPath extends LinkedList<Square> {
 	 */
 	public MovementPath(Square _root, Orientation _orientation, boolean _isContinuous, TeamColor _team) {
 		this.root = _root;
+		this.currentBuild = _root;
 		this.orientation = _orientation;
 		this.isContinuous = _isContinuous;
 		this.team = _team;
@@ -86,19 +104,28 @@ public class MovementPath extends LinkedList<Square> {
 	 * @return
 	 */
 	public int buildDiagonal(Direction _sideWays, Direction _verticle, int _length) {
+		if (!this.isValid) return _length;
+		
 		int count = 0;
-		Square current = this.root;
 		for (; count < _length; count ++) {
-			Square neighbor = current.neighbor(this.orientation, _sideWays);
+			Square neighbor = this.currentBuild.neighbor(this.orientation, _sideWays);
 			if (neighbor == null) {
+				if (!this.isContinuous) {
+					this.isValid = false;
+					this.clear();
+				}
 				return count;
 			}
 			Square diagNeighbor = neighbor.neighbor(this.orientation, _verticle);
 			if (diagNeighbor == null) {
+				if (!this.isContinuous) {
+					this.isValid = false;
+					this.clear();
+				}
 				return count;
 			}
 
-			current = neighbor;
+			this.currentBuild = diagNeighbor;
 			this.add(diagNeighbor);
 		}
 		return count;
@@ -112,15 +139,20 @@ public class MovementPath extends LinkedList<Square> {
 	 * @return
 	 */
 	public int build(Direction _direction, int _length) {
+		if (!this.isValid) return _length;
+		
 		int count = 0;
-		Square current = this.root;
 		for (; count < _length; count ++) {
-			Square neighbor = current.neighbor(this.orientation, _direction);
+			Square neighbor = this.currentBuild.neighbor(this.orientation, _direction);
 			if (neighbor == null) {
+				if (!this.isContinuous) {
+					this.isValid = false;
+					this.clear();
+				}
 				return count;
 			}
 			
-			current = neighbor;
+			this.currentBuild = neighbor;
 			this.add(neighbor);
 		}
 		return count;
@@ -138,6 +170,13 @@ public class MovementPath extends LinkedList<Square> {
 			for (int i = 0; i < this.size(); i ++) {
 				Square square = this.get(i);
 				if (this.isContinuous) {
+					/*
+					 * This piece can use this path but only until the first piece that
+					 * it encounters. If that piece is it's own team, then it must stop
+					 * in the node before that piece in this path. Otherwise, it can
+					 * move to that pieces square (and take that piece) but can move no
+					 * further.
+					 */
 					if (square.hasPiece()) {
 						int startRemovingIndex = i;
 						int origSize = this.size();
@@ -148,12 +187,28 @@ public class MovementPath extends LinkedList<Square> {
 						}
 					}
 				} else {
+					/*
+					 * Can't use this path if there's a piece in the way of this path.
+					 * The end square can only be moved to if it's not occupied by its
+					 * own team.
+					 * 
+					 * This is assuming that this path is not continuous (piece may only
+					 * move to the last square in the path.
+					 */
 					if (!this.getLast().equals(square) && square.hasPiece())
 						this.clear();
 					else if (this.getLast().equals(square) && square.hasPiece(this.team))
 						this.clear();
 				}
 			}
+		} else {
+			/*
+			 * Check to make sure that the end of this piece isn't its own team. The
+			 * squares in-between can be ignored because _canJump is true so it is
+			 * assumed this piece can jump over those pieces.
+			 */
+			if (this.size() > 0 && this.getLast().hasPiece(this.team))
+				this.clear();
 		}
 		return this.size() > 0;
 	}
