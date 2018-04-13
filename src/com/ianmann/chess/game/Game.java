@@ -101,7 +101,7 @@ public class Game {
 	 * Instantiates a game object.
 	 */
 	public Game() {
-		this.board = new Board();
+		this.board = new Board(this);
 		this.initTeam(TeamColor.WHITE);
 		this.initTeam(TeamColor.BLACK);
 	}
@@ -153,5 +153,24 @@ public class Game {
 			pieces.add(p);
 			this.board.spawnPiece(p);
 		}
+	}
+	
+	/**
+	 * Takes the given piece off the board and places them in the grave for its team.
+	 * @param _piece
+	 * @return
+	 */
+	public boolean capturePiece(Piece _piece) {
+		ArrayList<Piece> livePieces = this.livePieces.get(_piece.team);
+		ArrayList<Piece> grave = this.capturedPieces.get(_piece.team);
+		
+		if (livePieces.contains(_piece)) {
+			_piece.location.markPieceRemoved(_piece);
+			_piece.markMovedTo(null);
+			grave.add(_piece);
+			return true;
+		}
+		else
+			return false;
 	}
 }

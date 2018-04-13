@@ -30,6 +30,11 @@ import com.ianmann.chess.game.pieces.Rook;
 public class Board {
 	
 	/**
+	 * The game by which this board is controled.
+	 */
+	public final Game game;
+	
+	/**
 	 * The starting positions of pieces on each team. This data structure has keys
 	 * of teams that map to the maps of piece classes and a list of where each
 	 * class of piece goes.
@@ -79,7 +84,8 @@ public class Board {
 	 * @param _width
 	 * @param _height
 	 */
-	public Board(int _width, int _height) {
+	public Board(Game _game, int _width, int _height) {
+		this.game = _game;
 		this.width = _width;
 		this.height = _height;
 		this.build();
@@ -89,7 +95,8 @@ public class Board {
 	/**
 	 * Instantiates a board with the default dimensions of x and y.
 	 */
-	public Board() {
+	public Board(Game _game) {
+		this.game = _game;
 		this.width = 8;
 		this.height = 8;
 		this.build();

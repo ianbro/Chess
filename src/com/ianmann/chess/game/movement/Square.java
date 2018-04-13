@@ -348,12 +348,38 @@ public class Square {
 	 * @return
 	 */
 	public boolean placePiece(Piece _piece) {
-		if (this.hasPiece()) { return false; }
+		if (this.hasPiece(_piece.team))
+			return false;
+		else if (this.hasPiece())
+			this.board.game.capturePiece(this.getPiece());
 		this.piece = _piece;
 		if (this.piece.getLocation() != null)
 			this.piece.getLocation().piece = null;
 		this.piece.markMovedTo(this);
 		return true;
+	}
+	
+	/**
+	 * <p>
+	 * Marks the piece in this square (if it has one) as removed from the square. This
+	 * is used specifically for capturing a piece. This simply marks this square as not
+	 * having a piece anymore. The _piece is provided to make sure that the piece doing
+	 * capture is not removed but the piece that is captured is removed.
+	 * </p>
+	 * <p>
+	 * If _piece is the piece on this square currently, then it is removed from the square.
+	 * Otherwise, nothing happens. null is also an option and will signify that it doesn't
+	 * matter what piece is on this square, it will just kill it.
+	 * </p>
+	 * @return
+	 */
+	public boolean markPieceRemoved(Piece _piece) {
+		if (!this.hasPiece()) return false;
+		if (_piece == null || this.getPiece().equals(_piece)) {
+			this.piece = null;
+			return true;
+		}
+		return false;
 	}
 	
 	/**
