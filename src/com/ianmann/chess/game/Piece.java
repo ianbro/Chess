@@ -12,6 +12,7 @@ import com.ianmann.chess.game.movement.MovementPath;
 import com.ianmann.chess.game.movement.Orientation;
 import com.ianmann.chess.game.movement.Direction;
 import com.ianmann.chess.game.movement.Square;
+import com.ianmann.chess.game.pieces.Pawn;
 
 /**
  * <p>
@@ -104,6 +105,30 @@ public abstract class Piece {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Determines whether or not this piece can attack the given _piece. This is
+	 * done by just seeing if this piece can move to the square of _piece.
+	 * @param _piece
+	 * @return
+	 */
+	public boolean canAttack(Piece _piece) {
+		return this.canMove(_piece.location);
+	}
+	
+	/**
+	 * Determines if this piece could attack the given square if an enemy piece were
+	 * in that square. This is different than {@link this#canAttack(Piece)} because
+	 * canAttack evaluates based on where the piece that it's attacking currently is.
+	 * This method, however, simply determines if it is currently in range of attacking
+	 * a square. This is specifically useful for pawns as this simulates there being a
+	 * piece in _location to trigger it's diagonal attack.
+	 * @param _location
+	 * @return
+	 */
+	public boolean couldAttack(Square _location) {
+		return this.canMove(_location);
 	}
 	
 	/**

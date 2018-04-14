@@ -39,4 +39,16 @@ public enum TeamColor {
 	private TeamColor(String _initial) {
 		this.initial = _initial;
 	}
+	
+	/**
+	 * Returns the opponent team of this color.
+	 * @return
+	 */
+	public TeamColor oponent() {
+		if (this == TeamColor.WHITE) {
+			return TeamColor.BLACK;
+		} else {
+			return TeamColor.WHITE;
+		}
+	}
 }

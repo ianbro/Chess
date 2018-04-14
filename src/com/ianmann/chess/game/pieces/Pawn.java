@@ -94,6 +94,45 @@ public class Pawn extends Piece {
 		
 		return paths;
 	}
+	
+	/**
+	 * @Override Pawns may move forward one space if not blocked by any other piece. They may
+	 * also attack diagonally to the right or left if able to but may not move diagonally if
+	 * not attacking. If a pawn has not moved in the game yet, they may move forward 2 squares.
+	 */
+	public ArrayList<MovementPath> getPathsAsIfCouldAttack() {
+		// TODO Auto-generated method stub
+		ArrayList<MovementPath> paths = new ArrayList<MovementPath>();
+
+		MovementPath pathForwardDiagRight = new MovementPath(this.location, this.getOrientation(), false, this.team);
+		pathForwardDiagRight.buildDiagonal(Direction.FORWARD, Direction.RIGHT, 1);
+		if (pathForwardDiagRight.size() > 0) {
+			if (pathForwardDiagRight.finish(false))
+				paths.add(pathForwardDiagRight);
+		}
+		
+		MovementPath pathForwardDiagLeft = new MovementPath(this.location, this.getOrientation(), false, this.team);
+		pathForwardDiagLeft.buildDiagonal(Direction.FORWARD, Direction.LEFT, 1);
+		if (pathForwardDiagLeft.size() > 0) {
+			if (pathForwardDiagLeft.finish(false))
+				paths.add(pathForwardDiagLeft);
+		}
+		
+		return paths;
+	}
+	
+	/**
+	 * @Override Uses {@link this#getPathsAsIfCouldAttack()} instead of the basic
+	 * {@link this#getPaths()} for seeing the paths.
+	 */
+	public boolean couldAttack(Square _destination) {
+		for (MovementPath path : this.getPathsAsIfCouldAttack()) {
+			if (path.containsDestination(_destination) ) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	/* (non-Javadoc)
 	 * @see com.ianmann.chess.game.Piece#initial()

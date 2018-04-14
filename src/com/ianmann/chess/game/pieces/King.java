@@ -78,7 +78,37 @@ public class King extends Piece {
 		if (pathBackwardLeft.finish(false))
 			paths.add(pathBackwardLeft);
 		
+		/*
+		 * Stack overflow exception because evaluating other kings can move.
+		 */
+		evaluateMovesIntoCheck(paths);
+		
 		return paths;
+	}
+	
+	/**
+	 * For each square that this king can move to, this loops through each piece and determines
+	 * if that piece can attack that square. If so, the path that contains that square is removed
+	 * from the _paths list because it is not a valid path then. The king can't move into check.
+	 * @param _paths
+	 */
+	public void evaluateMovesIntoCheck(ArrayList<MovementPath> _paths) {
+		ArrayList<MovementPath> toRemove = new ArrayList<MovementPath>();
+		for (MovementPath path : _paths) {
+			for (Piece enemy : this.game.getLivePieces(this.team.oponent())) {
+				try {
+					if (enemy.couldAttack(path.getLast())) {
+						toRemove.add(path);
+						break;
+					}
+				} catch (StackOverflowError e) {
+					// There is a piece and it's the other king. But it's in range.
+					toRemove.add(path);
+					break;
+				}
+			}
+		}
+		_paths.removeAll(toRemove);
 	}
 
 	/* (non-Javadoc)

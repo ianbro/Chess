@@ -90,6 +90,14 @@ public class Game {
 	}
 	
 	/**
+	 * Returns the live pieces for this team.
+	 * @return
+	 */
+	public ArrayList<Piece> getLivePieces(TeamColor _team) {
+		return this.livePieces.get(_team);
+	}
+	
+	/**
 	 * @see {@link Game#board}
 	 * @return the board
 	 */

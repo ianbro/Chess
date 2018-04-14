@@ -158,14 +158,14 @@ public class Board {
 				add(squares.get("3-7"));
 			}});
 			put(King.class, new ArrayList<Square>(){{
-				add(squares.get("4-7"));
+				add(squares.get("5-4"));
 			}});
 			put(Pawn.class, new ArrayList<Square>(){{
 				add(squares.get("0-6"));
 				add(squares.get("1-6"));
 				add(squares.get("2-6"));
 				add(squares.get("3-6"));
-				add(squares.get("4-6"));
+				add(squares.get("4-4"));
 				add(squares.get("5-6"));
 				add(squares.get("6-6"));
 				add(squares.get("7-6"));
