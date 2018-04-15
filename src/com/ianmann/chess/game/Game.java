@@ -33,6 +33,12 @@ import com.ianmann.chess.game.pieces.Rook;
  *
  */
 public class Game {
+	
+	/**
+	 * The team that currently can go on the current turn. The
+	 * opponent pieces cannot move at all on this turn.
+	 */
+	private TeamColor currentTurnTeam = TeamColor.WHITE;
 
 	/**
 	 * <p>
@@ -180,5 +186,27 @@ public class Game {
 		}
 		else
 			return false;
+	}
+	
+	/**
+	 * Evaluates and performs a move. This moves the piece from
+	 * the square in _fromSquare to the square in _toSquare. If either
+	 * of these are null or if the _fromSquare has no piece of the
+	 * current teams, then nothing will happen. If the move was
+	 * successful, the current marker for the current team to move will
+	 * be set to the next team to go.
+	 * @param _from
+	 * @param _to
+	 */
+	public void takeTurn(Square _from, Square _to) {
+		boolean turnHappened = false;
+		if (_from == null || _to == null)
+			return;
+		if (!_from.hasPiece(this.currentTurnTeam))
+			return;
+		turnHappened = this.getBoard().movePiece(_from, _to);
+		if (turnHappened) {
+			this.currentTurnTeam = this.currentTurnTeam.oponent();
+		}
 	}
 }

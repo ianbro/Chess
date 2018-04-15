@@ -48,7 +48,9 @@ public class TestStuffMain {
 				String[] inputSquares = input.split(">");
 				if (game.getBoard().squares.get(inputSquares[0]).hasPiece())
 					testPiece = game.getBoard().squares.get(inputSquares[0]).getPiece();
-				game.getBoard().movePiece(inputSquares[0], inputSquares[1]);
+				Square fromSquare = game.getBoard().squares.get(inputSquares[0]);
+				Square toSquare = game.getBoard().squares.get(inputSquares[1]);
+				game.takeTurn(fromSquare, toSquare);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
