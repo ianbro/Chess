@@ -35,6 +35,10 @@ public class King extends Piece {
 	/* (non-Javadoc)
 	 * @see com.ianmann.chess.game.Piece#getPaths()
 	 */
+	/**
+	 * This king can move to all adjacent squares unless the square
+	 * would put him in check.
+	 */
 	@Override
 	public ArrayList<MovementPath> getPaths() {
 		ArrayList<MovementPath> paths = new ArrayList<MovementPath>();
@@ -87,6 +91,13 @@ public class King extends Piece {
 		return paths;
 	}
 	
+	/**
+	 * Does the same thing as {@link this#getPaths()} except this
+	 * method doesn't check for moving into check. This is specifically
+	 * used when checking if the enemy king would be moving into check
+	 * against this king.
+	 * @return
+	 */
 	public ArrayList<MovementPath> getPathsIgnoreMoveIntoCheck() {
 		ArrayList<MovementPath> paths = new ArrayList<MovementPath>();
 		
@@ -161,7 +172,12 @@ public class King extends Piece {
 	/* (non-Javadoc)
 	 * @see com.ianmann.chess.game.Piece#couldAttack(com.ianmann.chess.game.movement.Square)
 	 */
-	@Override
+	/**
+	 * @Override Uses {@link this#getPathsIgnoreMoveIntoCheck()} to
+	 * bet the paths where this piece can move. This doesn't make
+	 * checks for moving into check since that doesn't matter in this
+	 * case.
+	 */
 	public boolean couldAttack(Square _location) {
 		ArrayList<MovementPath> paths = this.getPathsIgnoreMoveIntoCheck();
 		for (MovementPath path : paths) {
