@@ -40,14 +40,18 @@ public class TestStuffMain {
 		
 		Scanner s = new Scanner(System.in);
 		while (true) {
-			System.out.println(game.getBoard().toBoardString());
-			System.out.println(testPiece.getPaths());
-			String input = s.nextLine();
-			if (input.equals("done")) { break; }
-			String[] inputSquares = input.split(">");
-			if (game.getBoard().squares.get(inputSquares[0]).hasPiece())
-				testPiece = game.getBoard().squares.get(inputSquares[0]).getPiece();
-			game.getBoard().movePiece(inputSquares[0], inputSquares[1]);
+			try {
+				System.out.println(game.getBoard().toBoardString());
+				System.out.println(testPiece.getPaths());
+				String input = s.nextLine();
+				if (input.equals("done")) { break; }
+				String[] inputSquares = input.split(">");
+				if (game.getBoard().squares.get(inputSquares[0]).hasPiece())
+					testPiece = game.getBoard().squares.get(inputSquares[0]).getPiece();
+				game.getBoard().movePiece(inputSquares[0], inputSquares[1]);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		s.close();
 	}

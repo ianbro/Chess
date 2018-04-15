@@ -13,6 +13,7 @@ import com.ianmann.chess.game.Piece;
 import com.ianmann.chess.game.TeamColor;
 import com.ianmann.chess.game.movement.Direction;
 import com.ianmann.chess.game.movement.MovementPath;
+import com.ianmann.chess.game.movement.Square;
 
 /**
  * @TODO: TODO
@@ -86,6 +87,52 @@ public class King extends Piece {
 		return paths;
 	}
 	
+	public ArrayList<MovementPath> getPathsIgnoreMoveIntoCheck() {
+		ArrayList<MovementPath> paths = new ArrayList<MovementPath>();
+		
+		MovementPath pathForward = new MovementPath(this.location, this.getOrientation(), false, this.team);
+		pathForward.build(Direction.FORWARD, 1);
+		if (pathForward.finish(false))
+			paths.add(pathForward);
+		
+		MovementPath pathRight = new MovementPath(this.location, this.getOrientation(), false, this.team);
+		pathRight.build(Direction.RIGHT, 1);
+		if (pathRight.finish(false))
+			paths.add(pathRight);
+		
+		MovementPath pathBackward = new MovementPath(this.location, this.getOrientation(), false, this.team);
+		pathBackward.build(Direction.BACKWARD, 1);
+		if (pathBackward.finish(false))
+			paths.add(pathBackward);
+		
+		MovementPath pathLeft = new MovementPath(this.location, this.getOrientation(), false, this.team);
+		pathLeft.build(Direction.LEFT, 1);
+		if (pathLeft.finish(false))
+			paths.add(pathLeft);
+		
+		MovementPath pathForwardRight = new MovementPath(this.location, this.getOrientation(), false, this.team);
+		pathForwardRight.buildDiagonal(Direction.FORWARD, Direction.RIGHT, 1);
+		if (pathForwardRight.finish(false))
+			paths.add(pathForwardRight);
+		
+		MovementPath pathForwardLeft = new MovementPath(this.location, this.getOrientation(), false, this.team);
+		pathForwardLeft.buildDiagonal(Direction.FORWARD, Direction.LEFT, 1);
+		if (pathForwardLeft.finish(false))
+			paths.add(pathForwardLeft);
+		
+		MovementPath pathBackwardRight = new MovementPath(this.location, this.getOrientation(), false, this.team);
+		pathBackwardRight.buildDiagonal(Direction.BACKWARD, Direction.RIGHT, 1);
+		if (pathBackwardRight.finish(false))
+			paths.add(pathBackwardRight);
+		
+		MovementPath pathBackwardLeft = new MovementPath(this.location, this.getOrientation(), false, this.team);
+		pathBackwardLeft.buildDiagonal(Direction.BACKWARD, Direction.LEFT, 1);
+		if (pathBackwardLeft.finish(false))
+			paths.add(pathBackwardLeft);
+		
+		return paths;
+	}
+	
 	/**
 	 * For each square that this king can move to, this loops through each piece and determines
 	 * if that piece can attack that square. If so, the path that contains that square is removed
@@ -109,6 +156,20 @@ public class King extends Piece {
 			}
 		}
 		_paths.removeAll(toRemove);
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.ianmann.chess.game.Piece#couldAttack(com.ianmann.chess.game.movement.Square)
+	 */
+	@Override
+	public boolean couldAttack(Square _location) {
+		ArrayList<MovementPath> paths = this.getPathsIgnoreMoveIntoCheck();
+		for (MovementPath path : paths) {
+			if (path.containsDestination(_location) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/* (non-Javadoc)
