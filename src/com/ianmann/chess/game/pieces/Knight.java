@@ -8,6 +8,7 @@ package com.ianmann.chess.game.pieces;
 
 import java.util.ArrayList;
 
+import com.ianmann.chess.game.Board;
 import com.ianmann.chess.game.Game;
 import com.ianmann.chess.game.Piece;
 import com.ianmann.chess.game.TeamColor;
@@ -27,9 +28,8 @@ public class Knight extends Piece {
 	/**
 	 * @param _team
 	 */
-	public Knight(Game _game, TeamColor _team) {
-		super(_game, _team);
-		// TODO Auto-generated constructor stub
+	public Knight(Board _board, TeamColor _team) {
+		super(_board, _team);
 	}
 
 	/* (non-Javadoc)
@@ -87,6 +87,8 @@ ArrayList<MovementPath> paths = new ArrayList<MovementPath>();
 		if (pathLeftBackward.finish(true))
 			paths.add(pathLeftBackward);
 		
+		this.evaluateKingInCheck(paths);
+		
 		return paths;
 	}
 
@@ -96,6 +98,15 @@ ArrayList<MovementPath> paths = new ArrayList<MovementPath>();
 	@Override
 	public String initial() {
 		return "N";
+	}
+
+	/**
+	 * Returns a copy of this king. This new king is not spawned
+	 * on any square though.
+	 */
+	public Piece copy(Board _board) {
+		Knight newKnight = new Knight(_board, this.team);
+		return newKnight;
 	}
 
 }

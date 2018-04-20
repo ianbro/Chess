@@ -8,6 +8,7 @@ package com.ianmann.chess.game.pieces;
 
 import java.util.ArrayList;
 
+import com.ianmann.chess.game.Board;
 import com.ianmann.chess.game.Game;
 import com.ianmann.chess.game.Piece;
 import com.ianmann.chess.game.TeamColor;
@@ -27,8 +28,8 @@ public class Bishop extends Piece {
 	/**
 	 * @param _team
 	 */
-	public Bishop(Game _game, TeamColor _team) {
-		super(_game, _team);
+	public Bishop(Board _board, TeamColor _team) {
+		super(_board, _team);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -40,24 +41,26 @@ public class Bishop extends Piece {
 		ArrayList<MovementPath> paths = new ArrayList<MovementPath>();
 		
 		MovementPath pathForwardRight = new MovementPath(this.location, Orientation.NORTH, true, this.team);
-		pathForwardRight.buildDiagonal(Direction.FORWARD, Direction.RIGHT, this.game.getBoard().height);
+		pathForwardRight.buildDiagonal(Direction.FORWARD, Direction.RIGHT, this.board.height);
 		if (pathForwardRight.finish(false))
 			paths.add(pathForwardRight);
 		
 		MovementPath pathBackwardRight = new MovementPath(this.location, Orientation.NORTH, true, this.team);
-		pathBackwardRight.buildDiagonal(Direction.BACKWARD, Direction.RIGHT, this.game.getBoard().width);
+		pathBackwardRight.buildDiagonal(Direction.BACKWARD, Direction.RIGHT, this.board.width);
 		if (pathBackwardRight.finish(false))
 			paths.add(pathBackwardRight);
 		
 		MovementPath pathBackwardLeft = new MovementPath(this.location, Orientation.NORTH, true, this.team);
-		pathBackwardLeft.buildDiagonal(Direction.BACKWARD, Direction.LEFT, this.game.getBoard().height);
+		pathBackwardLeft.buildDiagonal(Direction.BACKWARD, Direction.LEFT, this.board.height);
 		if (pathBackwardLeft.finish(false))
 			paths.add(pathBackwardLeft);
 		
 		MovementPath pathForwardLeft = new MovementPath(this.location, Orientation.NORTH, true, this.team);
-		pathForwardLeft.buildDiagonal(Direction.FORWARD, Direction.LEFT, this.game.getBoard().width);
+		pathForwardLeft.buildDiagonal(Direction.FORWARD, Direction.LEFT, this.board.width);
 		if (pathForwardLeft.finish(false))
 			paths.add(pathForwardLeft);
+		
+		this.evaluateKingInCheck(paths);
 		
 		return paths;
 	}
@@ -68,6 +71,15 @@ public class Bishop extends Piece {
 	@Override
 	public String initial() {
 		return "B";
+	}
+
+	/**
+	 * Returns a copy of this king. This new king is not spawned
+	 * on any square though.
+	 */
+	public Piece copy(Board _board) {
+		Bishop newBishop = new Bishop(_board, this.team);
+		return newBishop;
 	}
 
 }

@@ -8,6 +8,7 @@ package com.ianmann.chess.game.pieces;
 
 import java.util.ArrayList;
 
+import com.ianmann.chess.game.Board;
 import com.ianmann.chess.game.Game;
 import com.ianmann.chess.game.Piece;
 import com.ianmann.chess.game.TeamColor;
@@ -27,9 +28,8 @@ public class King extends Piece {
 	/**
 	 * @param _team
 	 */
-	public King(Game _game, TeamColor _team) {
-		super(_game, _team);
-		// TODO Auto-generated constructor stub
+	public King(Board _board, TeamColor _team) {
+		super(_board, _team);
 	}
 
 	/* (non-Javadoc)
@@ -153,20 +153,47 @@ public class King extends Piece {
 	public void evaluateMovesIntoCheck(ArrayList<MovementPath> _paths) {
 		ArrayList<MovementPath> toRemove = new ArrayList<MovementPath>();
 		for (MovementPath path : _paths) {
-			for (Piece enemy : this.game.getLivePieces(this.team.oponent())) {
-				try {
-					if (enemy.couldAttack(path.getLast())) {
-						toRemove.add(path);
-						break;
-					}
-				} catch (StackOverflowError e) {
-					// There is a piece and it's the other king. But it's in range.
+			for (Piece enemy : this.board.getLivePieces(this.team.oponent())) {
+				if (enemy.couldAttack(path.getLast())) {
 					toRemove.add(path);
 					break;
 				}
 			}
 		}
 		_paths.removeAll(toRemove);
+	}
+	
+	/**
+	 * Loops through each piece and determines if that piece can
+	 * attack this pieces square. If so, true is returned and it
+	 * is assumed that this king is in check.
+	 * @param _paths
+	 */
+	public boolean isInCheck() {
+		for (Piece enemy : this.board.getLivePieces(this.team.oponent())) {
+			if (enemy.canAttack(this)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Loops through each piece and determines if that piece can
+	 * attack this pieces square. If so, true is returned and it
+	 * is assumed that this king is in check.
+	 * @param _paths
+	 */
+	public boolean isInCheckAssumeSimulation(Board _board) {
+		for (Square square : _board.squares.values()) {
+			if (square.hasPiece(this.team.oponent())) {
+				Piece enemy = square.getPiece();
+				if (enemy.canAttack(this)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	/* (non-Javadoc)
@@ -196,4 +223,12 @@ public class King extends Piece {
 		return "K";
 	}
 
+	/**
+	 * Returns a copy of this king. This new king is not spawned
+	 * on any square though.
+	 */
+	public Piece copy(Board _board) {
+		King newKing = new King(_board, this.team);
+		return newKing;
+	}
 }

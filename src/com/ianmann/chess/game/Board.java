@@ -35,6 +35,26 @@ public class Board {
 	public final Game game;
 	
 	/**
+	 * Denotes whether or not this board is to simulate a move.
+	 * If not, then this is false and this board is the real
+	 * board for the game. Otherwise, this is true and this
+	 * board is just a simulation to check a moves validity at
+	 * the state of this board. This is useful to see if the
+	 * player has to move out of check.
+	 */
+	public final boolean isSimulation;
+	
+	/**
+	 * Map of each team and their pieces in play on the board. These
+	 * pieces have not been captured by the other team yet.
+	 */
+	private HashMap<TeamColor, ArrayList<Piece>> livePieces = new HashMap<TeamColor, ArrayList<Piece>>()
+	{{
+		put(TeamColor.BLACK, new ArrayList<Piece>());
+		put(TeamColor.WHITE, new ArrayList<Piece>());
+	}};
+	
+	/**
 	 * The starting positions of pieces on each team. This data structure has keys
 	 * of teams that map to the maps of piece classes and a list of where each
 	 * class of piece goes.
@@ -84,10 +104,11 @@ public class Board {
 	 * @param _width
 	 * @param _height
 	 */
-	public Board(Game _game, int _width, int _height) {
+	public Board(Game _game, int _width, int _height, boolean _isSimulation) {
 		this.game = _game;
 		this.width = _width;
 		this.height = _height;
+		this.isSimulation = _isSimulation;
 		this.build();
 		initStart();
 	}
@@ -99,8 +120,17 @@ public class Board {
 		this.game = _game;
 		this.width = 8;
 		this.height = 8;
+		this.isSimulation = false;
 		this.build();
 		initStart();
+	}
+	
+	/**
+	 * Returns the live pieces for this team.
+	 * @return
+	 */
+	public ArrayList<Piece> getLivePieces(TeamColor _team) {
+		return this.livePieces.get(_team);
 	}
 	
 	/**
@@ -189,7 +219,7 @@ public class Board {
 		 * first iteration and so the created row root is set to this
 		 * instances rootSquare attribute.
 		 */
-		System.out.println("Creating board...");
+		System.out.print("Creating board...");
 		Square currentRowSquareRoot = null;
 		for (int yCount = 0; yCount < this.height; yCount ++) {
 			/*
@@ -222,8 +252,6 @@ public class Board {
 			if (widthBuilt == this.width - 1) {
 				System.err.println("Could only create " + widthBuilt + " of " + this.width + " squares in row " + ((int) (yCount + 1)));
 				return;
-			} else {
-				System.out.println("Created " + widthBuilt + " of " + this.width + " squares in row " + ((int) (yCount + 1)));
 			}
 		}
 		System.out.println("Done creating board.");
@@ -250,7 +278,7 @@ public class Board {
 	}
 	
 	/**
-	 * Places the piece in a spot on the baord where it is set to
+	 * Places the piece in a spot on the board where it is set to
 	 * start according to {@link Board#startingPositions}.
 	 * @param _piece
 	 * @return
@@ -311,5 +339,70 @@ public class Board {
 			return false;
 
 		return _toSquare.placePiece(_fromSquare.getPiece());
+	}
+	
+	/**
+	 * <p>
+	 * Moves a piece from _fromSquare to _toSquare. This will return true if the piece
+	 * was successfully moved or false if not.
+	 * </p>
+	 * <p>
+	 * Please note that it is assumed that the validity of this move is already
+	 * established as true. This way, we don't run checks again causing stack
+	 * overflow errors.
+	 * </p>
+	 * <p>
+	 * This calls the {@link Square#simulatePlacePiece(Piece)} method
+	 * instead of the {@link Square#placePiece(Piece)} so that it
+	 * doesn't mess with the game data.
+	 * </p>
+	 * @param _fromCoordinates
+	 * @param _toCoordinates
+	 * @return
+	 */
+	public boolean simulateMovePiece(String _fromCoordinate, String _toCoordinate) {
+		return this.squares.get(_toCoordinate).simulatePlacePiece(this.squares.get(_fromCoordinate).getPiece());
+	}
+	
+	/**
+	 * <p>
+	 * Copies this games board with copies of each piece on their
+	 * respective square. Then, the copied board moves the piece on
+	 * _fromSquare coordinate on the copied board to the square with
+	 * the coordinate of _toSquare on the copied board.
+	 * </p>
+	 * @param _fromSquare
+	 * @param _toSquare
+	 * @return The piece that is simulated. This piece is a copy of the
+	 * piece on _fromSquare.
+	 */
+	public Board simulateMove(Square _fromSquare, Square _toSquare) {
+		try {
+			Board newBoard = new Board(this.game, this.width, this.height, true);
+			newBoard.build();
+			for (Square square : newBoard.squares.values()) {
+				square.copyOriginalSquare(this.squares.get(square.coordinateString()));
+			}
+			newBoard.simulateMovePiece(_fromSquare.coordinateString(), _toSquare.coordinateString());
+			return newBoard;
+		} catch (Exception e) {
+			System.err.println("Error in simulateMove");
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	/**
+	 * Returns the king on this board of the given _team.
+	 * @param _team
+	 * @return
+	 */
+	public King getKing(TeamColor _team) {
+		for (Square square : this.squares.values()) {
+			if (square.hasPiece(_team) && King.class.isInstance(square.getPiece())) {
+				return (King) square.getPiece();
+			}
+		}
+		return null;
 	}
 }

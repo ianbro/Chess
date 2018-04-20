@@ -8,6 +8,7 @@ package com.ianmann.chess.game.pieces;
 
 import java.util.ArrayList;
 
+import com.ianmann.chess.game.Board;
 import com.ianmann.chess.game.Game;
 import com.ianmann.chess.game.Piece;
 import com.ianmann.chess.game.TeamColor;
@@ -27,9 +28,8 @@ public class Pawn extends Piece {
 	/**
 	 * @param _team
 	 */
-	public Pawn(Game _game, TeamColor _team) {
-		super(_game, _team);
-		// TODO Auto-generated constructor stub
+	public Pawn(Board _board, TeamColor _team) {
+		super(_board, _team);
 	}
 
 	/**
@@ -92,6 +92,8 @@ public class Pawn extends Piece {
 				paths.add(pathForwardDiagLeft);
 		}
 		
+		this.evaluateKingInCheck(paths);
+		
 		return paths;
 	}
 	
@@ -140,6 +142,15 @@ public class Pawn extends Piece {
 	@Override
 	public String initial() {
 		return "P";
+	}
+
+	/**
+	 * Returns a copy of this king. This new king is not spawned
+	 * on any square though.
+	 */
+	public Piece copy(Board _board) {
+		Pawn newPawn = new Pawn(_board, this.team);
+		return newPawn;
 	}
 
 }

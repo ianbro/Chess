@@ -361,6 +361,32 @@ public class Square {
 	
 	/**
 	 * <p>
+	 * Places the specified piece in this square, setting the
+	 * piece attribute of this square.
+	 * </p>
+	 * <p>
+	 * Please not that this move is assumed to be valid. No checks will
+	 * be run so as to avoid stack overflow errors.
+	 * </p>
+	 * <p>
+	 * This simulates the move assuming this square is a copy on
+	 * a copied board, not the original board. Therefore, the logic
+	 * of tracking dead and live pieces is removed so it doesn't
+	 * accidentally remove the actual piece.
+	 * </p>
+	 * @param _piece
+	 * @return
+	 */
+	public boolean simulatePlacePiece(Piece _piece) {
+		this.piece = _piece;
+		if (this.piece.getLocation() != null)
+			this.piece.getLocation().piece = null;
+		this.piece.markMovedTo(this);
+		return true;
+	}
+	
+	/**
+	 * <p>
 	 * Marks the piece in this square (if it has one) as removed from the square. This
 	 * is used specifically for capturing a piece. This simply marks this square as not
 	 * having a piece anymore. The _piece is provided to make sure that the piece doing
@@ -390,7 +416,7 @@ public class Square {
 	 * </p>
 	 * <p>
 	 * This is different from {@link this#placePiece(Piece)}
-	 * because it calls {@link Piece#spawn(Square)} instead of
+	 * because it calls {@link Piece#markSpawned(Square)} instead of
 	 * {@link Piece#markMovedTo(Square)} so that any movement
 	 * logic is not called.
 	 * </p>
@@ -402,7 +428,8 @@ public class Square {
 		this.piece = _piece;
 		if (this.piece.getLocation() != null)
 			this.piece.getLocation().piece = null;
-		this.piece.spawn(this);
+		this.piece.markSpawned(this);
+		this.board.getLivePieces(_piece.team).add(_piece);
 		return true;
 	}
 	
@@ -516,5 +543,19 @@ public class Square {
 	 */
 	public String toString() {
 		return this.coordinateString() + ":" + this.getPiece();
+	}
+	
+	/**
+	 * Copies information in the _original square into this square.
+	 * Any piece on _original will be copied and spawned onto the
+	 * new square copy. It is assumed that this square is the copied
+	 * simulated square.
+	 * @param _original
+	 */
+	public void copyOriginalSquare(Square _original) {
+		if (_original.hasPiece()) {
+			Piece newPiece = _original.piece.copy(this.board);
+			this.spawnPiece(newPiece);
+		}
 	}
 }

@@ -12,6 +12,7 @@ import com.ianmann.chess.game.movement.MovementPath;
 import com.ianmann.chess.game.movement.Orientation;
 import com.ianmann.chess.game.movement.Direction;
 import com.ianmann.chess.game.movement.Square;
+import com.ianmann.chess.game.pieces.King;
 import com.ianmann.chess.game.pieces.Pawn;
 
 /**
@@ -27,14 +28,14 @@ import com.ianmann.chess.game.pieces.Pawn;
 public abstract class Piece {
 	
 	/**
-	 * The game to which this piece belongs.
-	 */
-	public Game game;
-	
-	/**
 	 * The team to which this piece belongs.
 	 */
-	public TeamColor team;
+	public final TeamColor team;
+	
+	/**
+	 * The board that this piece is playing on.
+	 */
+	public final Board board;
 	
 	/**
 	 * The current location of this piece on the board.
@@ -61,7 +62,7 @@ public abstract class Piece {
 	 * Sets the location of this piece on the board for the first time.
 	 * @param _location
 	 */
-	public void spawn(Square _location) {
+	public void markSpawned(Square _location) {
 		this.location = _location;
 	}
 
@@ -76,8 +77,13 @@ public abstract class Piece {
 	 */
 	public abstract ArrayList<MovementPath> getPaths();
 	
-	public Piece(Game _game, TeamColor _team) {
-		this.game = _game;
+	/**
+	 * Initialize this pieces board and team.
+	 * @param _board
+	 * @param _team
+	 */
+	public Piece(Board _board, TeamColor _team) {
+		this.board = _board;
 		this.team = _team;
 	}
 	
@@ -87,7 +93,7 @@ public abstract class Piece {
 	 * @return
 	 */
 	public Orientation getOrientation() {
-		return this.game.getOrientations().get(this.team);
+		return this.board.game.getOrientations().get(this.team);
 	}
 	
 	/**
@@ -137,5 +143,39 @@ public abstract class Piece {
 	 */
 	public String toString() {
 		return this.team.initial + this.initial();
+	}
+	
+	/**
+	 * Copies this piece but doesn't spawn this piece anywhere. The _board
+	 * is the copy of the board that this piece will go on.
+	 * @return
+	 */
+	public abstract Piece copy(Board _board);
+	
+	/**
+	 * Loops through each path in _paths and, if the king would still
+	 * be in check if that move is made, then that path is removed.
+	 * @param _paths
+	 */
+	protected void evaluateKingInCheck(ArrayList<MovementPath> _paths) {
+		if (this.board.isSimulation)
+			return;
+		ArrayList<MovementPath> toRemove = new ArrayList<MovementPath>();
+		for (MovementPath path : _paths) {
+			ArrayList<Square> removeFromPath = new ArrayList<Square>();
+			for (Square square : path) {
+				if (path.containsDestination(square)) {
+					Board simulatedBoard = this.board.simulateMove(this.location, square);
+					King thisPiecesKing = simulatedBoard.getKing(this.team);
+					if (thisPiecesKing.isInCheckAssumeSimulation(simulatedBoard))
+						removeFromPath.add(square);
+				}
+			}
+			path.removeAll(removeFromPath);
+			if (path.size() == 0) {
+				toRemove.add(path);
+			}
+		}
+		_paths.removeAll(toRemove);
 	}
 }

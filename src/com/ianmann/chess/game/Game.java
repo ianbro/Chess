@@ -62,16 +62,6 @@ public class Game {
 	private Board board;
 	
 	/**
-	 * Map of each team and their pieces in play on the board. These
-	 * pieces have not been captured by the other team yet.
-	 */
-	private HashMap<TeamColor, ArrayList<Piece>> livePieces = new HashMap<TeamColor, ArrayList<Piece>>()
-	{{
-		put(TeamColor.BLACK, new ArrayList<Piece>());
-		put(TeamColor.WHITE, new ArrayList<Piece>());
-	}};
-	
-	/**
 	 * Map of each team and their pieces which have been captured. These
 	 * pieces have been captured by the other team.
 	 */
@@ -100,7 +90,7 @@ public class Game {
 	 * @return
 	 */
 	public ArrayList<Piece> getLivePieces(TeamColor _team) {
-		return this.livePieces.get(_team);
+		return this.board.getLivePieces(_team);
 	}
 	
 	/**
@@ -129,42 +119,32 @@ public class Game {
 	 * @param _team
 	 */
 	public void spawnTeam(TeamColor _team) {
-		ArrayList<Piece> pieces = this.livePieces.get(_team);
-		Rook r1 = new Rook(this, _team);
-		pieces.add(r1);
+		Rook r1 = new Rook(this.board, _team);
 		this.board.spawnPiece(r1);
 
-		Rook r2 = new Rook(this, _team);
-		pieces.add(r2);
+		Rook r2 = new Rook(this.board, _team);
 		this.board.spawnPiece(r2);
 		
-		Knight n1 = new Knight(this, _team);
-		pieces.add(n1);
+		Knight n1 = new Knight(this.board, _team);
 		this.board.spawnPiece(n1);
 		
-		Knight n2 = new Knight(this, _team);
-		pieces.add(n2);
+		Knight n2 = new Knight(this.board, _team);
 		this.board.spawnPiece(n2);
 		
-		Bishop b1 = new Bishop(this, _team);
-		pieces.add(b1);
+		Bishop b1 = new Bishop(this.board, _team);
 		this.board.spawnPiece(b1);
 		
-		Bishop b2 = new Bishop(this, _team);
-		pieces.add(b2);
+		Bishop b2 = new Bishop(this.board, _team);
 		this.board.spawnPiece(b2);
 		
-		Queen q = new Queen(this, _team);
-		pieces.add(q);
+		Queen q = new Queen(this.board, _team);
 		this.board.spawnPiece(q);
 		
-		King k = new King(this, _team);
-		pieces.add(k);
+		King k = new King(this.board, _team);
 		this.board.spawnPiece(k);
 		
 		for (int i = 0; i < this.board.width; i ++) {
-			Pawn p = new Pawn(this, _team);
-			pieces.add(p);
+			Pawn p = new Pawn(this.board, _team);
 			this.board.spawnPiece(p);
 		}
 	}
@@ -175,7 +155,7 @@ public class Game {
 	 * @return
 	 */
 	public boolean capturePiece(Piece _piece) {
-		ArrayList<Piece> livePieces = this.livePieces.get(_piece.team);
+		ArrayList<Piece> livePieces = this.getLivePieces(_piece.team);
 		ArrayList<Piece> grave = this.capturedPieces.get(_piece.team);
 		
 		if (livePieces.contains(_piece)) {
@@ -202,8 +182,8 @@ public class Game {
 		boolean turnHappened = false;
 		if (_from == null || _to == null)
 			return;
-		if (!_from.hasPiece(this.currentTurnTeam))
-			return;
+//		if (!_from.hasPiece(this.currentTurnTeam))
+//			return;
 		turnHappened = this.getBoard().movePiece(_from, _to);
 		if (turnHappened) {
 			this.currentTurnTeam = this.currentTurnTeam.oponent();
