@@ -10,10 +10,8 @@ import java.util.ArrayList;
 
 import com.ianmann.chess.game.movement.MovementPath;
 import com.ianmann.chess.game.movement.Orientation;
-import com.ianmann.chess.game.movement.Direction;
 import com.ianmann.chess.game.movement.Square;
 import com.ianmann.chess.game.pieces.King;
-import com.ianmann.chess.game.pieces.Pawn;
 
 /**
  * <p>
@@ -153,8 +151,14 @@ public abstract class Piece {
 	public abstract Piece copy(Board _board);
 	
 	/**
+	 * <p>
 	 * Loops through each path in _paths and, if the king would still
 	 * be in check if that move is made, then that path is removed.
+	 * </p>
+	 * <p>
+	 * If this piece is a simulation, the check will not be run because simulations
+	 * assume that pieces can take the king even if it leads their king into check.
+	 * </p>
 	 * @param _paths
 	 */
 	protected void evaluateKingInCheck(ArrayList<MovementPath> _paths) {
@@ -167,8 +171,13 @@ public abstract class Piece {
 				if (path.containsDestination(square)) {
 					Board simulatedBoard = this.board.simulateMove(this.location, square);
 					King thisPiecesKing = simulatedBoard.getKing(this.team);
-					if (thisPiecesKing.isInCheckAssumeSimulation(simulatedBoard))
-						removeFromPath.add(square);
+					if (thisPiecesKing.isInCheckAssumeSimulation(simulatedBoard)) {
+						if (path.isContinuous) {
+							removeFromPath.add(square);
+						} else {
+							toRemove.add(path);
+						}
+					}
 				}
 			}
 			path.removeAll(removeFromPath);

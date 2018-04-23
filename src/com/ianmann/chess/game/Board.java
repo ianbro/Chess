@@ -188,14 +188,14 @@ public class Board {
 				add(squares.get("3-7"));
 			}});
 			put(King.class, new ArrayList<Square>(){{
-				add(squares.get("5-4"));
+				add(squares.get("4-7"));
 			}});
 			put(Pawn.class, new ArrayList<Square>(){{
 				add(squares.get("0-6"));
 				add(squares.get("1-6"));
 				add(squares.get("2-6"));
 				add(squares.get("3-6"));
-				add(squares.get("4-4"));
+				add(squares.get("4-6"));
 				add(squares.get("5-6"));
 				add(squares.get("6-6"));
 				add(squares.get("7-6"));
@@ -219,7 +219,6 @@ public class Board {
 		 * first iteration and so the created row root is set to this
 		 * instances rootSquare attribute.
 		 */
-		System.out.print("Creating board...");
 		Square currentRowSquareRoot = null;
 		for (int yCount = 0; yCount < this.height; yCount ++) {
 			/*
@@ -254,7 +253,6 @@ public class Board {
 				return;
 			}
 		}
-		System.out.println("Done creating board.");
 	}
 	
 	/**

@@ -63,7 +63,7 @@ public class MovementPath extends LinkedList<Square> {
 	 * destination path.
 	 * </p>
 	 */
-	private boolean isContinuous;
+	public final boolean isContinuous;
 	
 	/**
 	 * The team that this path is relative to. This is used to ensure that the path does
