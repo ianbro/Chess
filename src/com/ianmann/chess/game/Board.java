@@ -318,10 +318,16 @@ public class Board {
 	}
 	
 	/**
+	 * <p>
 	 * Moves a piece from _fromSquare to _toSquare. This will return true if the piece
 	 * was successfully moved or false if not. If either of the squares are not found,
 	 * the from square doesn't' contain a piece or the to square has a piece of the same
 	 * team as that in to square, nothing will happen and false will be returned.
+	 * </p>
+	 * <p>
+	 * This also checks to make sure that the piece in _fromSquare has a valid path to
+	 * _toSquare. In other words, This ensures that a pawn is not trying to move 4 squares.
+	 * </p>
 	 * @param _fromCoordinates
 	 * @param _toCoordinates
 	 * @return

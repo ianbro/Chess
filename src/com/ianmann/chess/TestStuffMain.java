@@ -26,6 +26,17 @@ import com.ianmann.chess.game.pieces.Pawn;
  *
  */
 public class TestStuffMain {
+	
+	/**
+	 * Designates whether or not pieces must move according to their rules. If this is
+	 * false, there is not movement restrictions. For example, kings can move in check
+	 * or a pawn can move 5 squares at once. This is simply set to false if you want to
+	 * set up a scenario and move pieces around.
+	 */
+	public static boolean movementRestrictionsOn = true;
+	
+	public static Game game;
+	public static Piece testPiece;
 
 	/**
 	 * @param args
@@ -34,9 +45,9 @@ public class TestStuffMain {
 	public static void main(String[] args) {
 		Orientation.initRelativeOrientation();
 		
-		Game game = new Game();
+		game = new Game();
 		
-		Piece testPiece = game.getBoard().squares.get("7-7").getPiece();
+		testPiece = game.getBoard().squares.get("7-7").getPiece();
 		
 		Scanner s = new Scanner(System.in);
 		while (true) {
@@ -44,18 +55,44 @@ public class TestStuffMain {
 				System.out.println(game.getBoard().toBoardString());
 				System.out.println(testPiece.getPaths());
 				String input = s.nextLine();
-				if (input.equals("done")) { break; }
-				String[] inputSquares = input.split(">");
-				if (game.getBoard().squares.get(inputSquares[0]).hasPiece())
-					testPiece = game.getBoard().squares.get(inputSquares[0]).getPiece();
-				Square fromSquare = game.getBoard().squares.get(inputSquares[0]);
-				Square toSquare = game.getBoard().squares.get(inputSquares[1]);
-				game.takeTurn(fromSquare, toSquare);
+				
+				if (!inputOptions(input))
+					break;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		s.close();
+	}
+	
+	public static boolean inputOptions(String input) {
+		switch (input) {
+		case "no-restrict":
+			movementRestrictionsOn = false;
+			break;
+		case "restrict":
+			movementRestrictionsOn = true;
+			break;
+		case "done":
+			return false;
+		default:
+			performMove(input);
+			break;
+		}
+		return true;
+	}
+	
+	public static void performMove(String input) {
+		String[] inputSquares = input.split(">");
+		if (game.getBoard().squares.get(inputSquares[0]).hasPiece())
+			testPiece = game.getBoard().squares.get(inputSquares[0]).getPiece();
+		Square fromSquare = game.getBoard().squares.get(inputSquares[0]);
+		Square toSquare = game.getBoard().squares.get(inputSquares[1]);
+		
+		if (movementRestrictionsOn)
+			game.takeTurn(fromSquare, toSquare);
+		else
+			toSquare.placePiece(fromSquare.getPiece());
 	}
 
 }

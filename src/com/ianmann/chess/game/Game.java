@@ -182,8 +182,8 @@ public class Game {
 		boolean turnHappened = false;
 		if (_from == null || _to == null)
 			return;
-//		if (!_from.hasPiece(this.currentTurnTeam))
-//			return;
+		if (!_from.hasPiece(this.currentTurnTeam))
+			return;
 		turnHappened = this.getBoard().movePiece(_from, _to);
 		if (turnHappened) {
 			this.currentTurnTeam = this.currentTurnTeam.oponent();
