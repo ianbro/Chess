@@ -54,6 +54,10 @@ public class TestStuffMain {
 			try {
 				System.out.println(game.getBoard().toBoardString());
 				System.out.println(testPiece.getPaths());
+				System.out.println("Conditions: ");
+				System.out.println(game.teamIsInCheck(game.getCurrentTurnTeam()));
+				System.out.println(game.teamIsInCheckMate(game.getCurrentTurnTeam()));
+				System.out.println(game.teamIsInStaleMate(game.getCurrentTurnTeam()));
 				String input = s.nextLine();
 				
 				if (!inputOptions(input))

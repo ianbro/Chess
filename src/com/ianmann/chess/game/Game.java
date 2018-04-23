@@ -9,7 +9,6 @@ package com.ianmann.chess.game;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.ianmann.chess.game.movement.Direction;
 import com.ianmann.chess.game.movement.Orientation;
 import com.ianmann.chess.game.movement.Square;
 import com.ianmann.chess.game.pieces.Bishop;
@@ -102,6 +101,14 @@ public class Game {
 	}
 	
 	/**
+	 * Read only access to {@link this#currentTurnTeam}.
+	 * @return
+	 */
+	public TeamColor getCurrentTurnTeam() {
+		return this.currentTurnTeam;
+	}
+	
+	/**
 	 * Instantiates a game object.
 	 */
 	public Game() {
@@ -169,24 +176,77 @@ public class Game {
 	}
 	
 	/**
+	 * Determines whether or not the given team's king is in check.
+	 * @return
+	 */
+	public boolean teamIsInCheck(TeamColor _team) {
+		return this.board.getKing(_team).isInCheck();
+	}
+	
+	/**
+	 * Determines whether or not the given team's king is in check-mate (They are
+	 * in check and the king has no where to move.
+	 * @return
+	 */
+	public boolean teamIsInCheckMate(TeamColor _team) {
+		return this.teamIsInCheck(_team) && this.board.getKing(_team).getPaths().size() == 0;
+	}
+	
+	/**
+	 * <p>
+	 * Determines whether or not the given team has been put in stale-mate (Their
+	 * king is not in check but they have no valid move to make.
+	 * </p>
+	 * <p>
+	 * A team may have no valid moves but not be in stale mate. This is only the case if it
+	 * is not currently their turn. If the other team moves so that this team then has
+	 * a valid move, they will no longer be in stale mate and so this should always return
+	 * false if the games current moving team is not _team.
+	 * </p>
+	 * @param _team
+	 * @return
+	 */
+	public boolean teamIsInStaleMate(TeamColor _team) {
+		if (this.currentTurnTeam != _team) return false;
+		
+		for (Piece piece : this.getLivePieces(_team)) {
+			if (piece.getPaths().size() > 0) {
+				return false;
+			}
+		}
+		/* If the loop finishes, then no piece was found to have a valid path so this team is
+		in stale mate. */
+		return true;
+	}
+	
+	/**
+	 * <p>
 	 * Evaluates and performs a move. This moves the piece from
 	 * the square in _fromSquare to the square in _toSquare. If either
 	 * of these are null or if the _fromSquare has no piece of the
 	 * current teams, then nothing will happen. If the move was
 	 * successful, the current marker for the current team to move will
 	 * be set to the next team to go.
+	 * </p>
+	 * <p>
+	 * Returns true if the move was successful; false otherwise.
+	 * </p>
 	 * @param _from
 	 * @param _to
 	 */
-	public void takeTurn(Square _from, Square _to) {
-		boolean turnHappened = false;
+	public boolean takeTurn(Square _from, Square _to) {
 		if (_from == null || _to == null)
-			return;
+			return false;
 		if (!_from.hasPiece(this.currentTurnTeam))
-			return;
-		turnHappened = this.getBoard().movePiece(_from, _to);
-		if (turnHappened) {
-			this.currentTurnTeam = this.currentTurnTeam.oponent();
-		}
+			return false;
+		return this.getBoard().movePiece(_from, _to);
+	}
+	
+	/**
+	 * Does logic to finish a move such as setting the team that goes next and
+	 * checking win conditions.
+	 */
+	public void finalizeTurn() {
+		this.currentTurnTeam = this.currentTurnTeam.oponent();
 	}
 }
