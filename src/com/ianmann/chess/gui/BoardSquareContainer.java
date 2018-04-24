@@ -121,9 +121,30 @@ public class BoardSquareContainer extends GridPane {
 		System.out.println(this.game.getBoard().toBoardString());
 	}
 	
+	/**
+	 * <p>
+	 * Takes a square and decides if it is going to be the square that a move will originate
+	 * from or a square that a move will end at.
+	 * </p>
+	 * <p>
+	 * If {@link this#fromSelection} has not been set yet or if _displayClicked has a piece of
+	 * the current players color, then _displayClicked will be set to {@link this#fromSelection}.
+	 * </p>
+	 * <p>
+	 * Otherwise, if {@link this#fromSelection} has been set and _displayClicked is a valid move
+	 * for the piece in {@link this#fromSelection}, then it is set to _displayClicked. If this
+	 * was done successful, the move is done where @link this#fromSelection} is used as the
+	 * original square and {@link this#fromSelection} is used as the destination square.
+	 * </p>
+	 * <p>
+	 * If the move was successful, then the squares on the board are re-drawn, the squares pointed
+	 * to by {@link this#toSelection} and {@link this#fromSelection} are reset to null and the next
+	 * turn is started.
+	 * </p>
+	 * @param _displayClicked
+	 */
 	public void inputSquareClick(SquarePane _displayClicked) {
 		if (this.fromSelection == null || _displayClicked.backend.hasPiece(this.game.getCurrentTurnTeam())) {
-			System.out.println("from square");
 			if (!_displayClicked.backend.hasPiece(this.game.getCurrentTurnTeam()))
 				return;
 			
@@ -131,7 +152,6 @@ public class BoardSquareContainer extends GridPane {
 				this.fromSelection = _displayClicked;
 			}
 		} else {
-			System.out.println("to square");
 			if (!this.fromSelection.backend.getPiece().canMove(_displayClicked.backend))
 				return;
 			

@@ -97,7 +97,6 @@ class SquareClickedHandler implements EventHandler<Event> {
 	 * @param event
 	 */
 	public void handle(Event event) {
-		System.out.println("Click: " + this.square.backend.coordinateString());
 		this.square.parentContainer.inputSquareClick(this.square);
 	}
 }
