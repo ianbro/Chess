@@ -65,10 +65,10 @@ public class Game {
 	 * Map of each team and their pieces which have been captured. These
 	 * pieces have been captured by the other team.
 	 */
-	private HashMap<TeamColor, ArrayList<Piece>> capturedPieces = new HashMap<TeamColor, ArrayList<Piece>>()
+	private HashMap<TeamColor, HashMap<Class<? extends Piece>, ArrayList<Piece>>> capturedPieces = new HashMap<TeamColor, HashMap<Class<? extends Piece>, ArrayList<Piece>>>()
 	{{
-		put(TeamColor.BLACK, new ArrayList<Piece>());
-		put(TeamColor.WHITE, new ArrayList<Piece>());
+		put(TeamColor.BLACK, new HashMap<Class<? extends Piece>, ArrayList<Piece>>());
+		put(TeamColor.WHITE, new HashMap<Class<? extends Piece>, ArrayList<Piece>>());
 	}};
 
 	/**
@@ -91,6 +91,14 @@ public class Game {
 	 */
 	public ArrayList<Piece> getLivePieces(TeamColor _team) {
 		return this.board.getLivePieces(_team);
+	}
+	
+	/**
+	 * Returns the captured pieces for this team.
+	 * @return
+	 */
+	public HashMap<Class<? extends Piece>, ArrayList<Piece>> getCapturedPieces(TeamColor _team) {
+		return this.capturedPieces.get(_team);
 	}
 	
 	/**
@@ -164,12 +172,18 @@ public class Game {
 	 */
 	public boolean capturePiece(Piece _piece) {
 		ArrayList<Piece> livePieces = this.getLivePieces(_piece.team);
-		ArrayList<Piece> grave = this.capturedPieces.get(_piece.team);
+		HashMap<Class<? extends Piece>, ArrayList<Piece>> grave = this.capturedPieces.get(_piece.team);
 		
 		if (livePieces.contains(_piece)) {
 			_piece.location.markPieceRemoved(_piece);
 			_piece.markMovedTo(null);
-			grave.add(_piece);
+			if (grave.containsKey(_piece.getClass()))
+				grave.get(_piece.getClass()).add(_piece);
+			else {
+				grave.put(_piece.getClass(), new ArrayList<Piece>(){{
+					add(_piece);
+				}});
+			}
 			return true;
 		}
 		else

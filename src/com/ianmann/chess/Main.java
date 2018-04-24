@@ -3,13 +3,11 @@ package com.ianmann.chess;
 import com.ianmann.chess.game.Game;
 import com.ianmann.chess.game.movement.Orientation;
 import com.ianmann.chess.gui.BoardSquareContainer;
-import com.ianmann.chess.gui.PieceDisplay;
-import com.ianmann.chess.gui.SquarePane;
+import com.ianmann.chess.gui.GameScreen;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
 
 
 public class Main extends Application {
@@ -20,8 +18,9 @@ public class Main extends Application {
 		Game game = new Game();
 		
 		try {
-			BoardSquareContainer root = new BoardSquareContainer(game, "development", game.getBoard());
-			Scene scene = new Scene(root);
+//			BoardSquareContainer root = new BoardSquareContainer(game, "development", game.getBoard());
+			GameScreen root = new GameScreen(game, "development");
+			Scene scene = new Scene(root.value);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
 			primaryStage.show();

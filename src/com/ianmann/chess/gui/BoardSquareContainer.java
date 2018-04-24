@@ -29,10 +29,7 @@ import javafx.scene.layout.GridPane;
  */
 public class BoardSquareContainer extends GridPane {
 	
-	/**
-	 * The theme of this board.
-	 */
-	public final String theme;
+	public final GameScreen gameScreen;
 	
 	/**
 	 * The background image that is behind each square.
@@ -48,16 +45,6 @@ public class BoardSquareContainer extends GridPane {
 	 * A list of squares in this board.
 	 */
 	private ArrayList<SquarePane> squares;
-	
-	/**
-	 * The back-end representation of this game board.
-	 */
-	public final Board backend;
-	
-	/**
-	 * The game that this board display is for.
-	 */
-	public final Game game;
 	
 	/**
 	 * Designates where the user has selected to move from. This is set when they click a
@@ -78,19 +65,17 @@ public class BoardSquareContainer extends GridPane {
 	 * on this, see {@link BoardSquareContainer}.
 	 * </p>
 	 * <p>
-	 * This sets the backend data, the background and the size of this board along.
+	 * This sets the back-end data, the background and the size of this board along.
 	 * </p>
 	 * @param _theme
 	 * @param _backend
 	 */
-	public BoardSquareContainer(Game _game, String _theme, Board _backend) {
-		this.game = _game;
-		this.backend = _backend;
-		this.theme = _theme;
+	public BoardSquareContainer(GameScreen _parentGameScreen) {
+		this.gameScreen = _parentGameScreen;
 		this.squareSize = 75;
 		
 		this.backgroundImage = new Image(this.getClass().getResourceAsStream(
-				"/resources/themes/" + this.theme + "/boardBackground.jpg"));
+				"/resources/themes/" + this.gameScreen.theme + "/boardBackground.jpg"));
 		this.setBackground(new Background(new BackgroundImage(this.backgroundImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, new BackgroundSize(100, 100, true, true, true, true))));
 		
 		this.generateSquareDisplays();
@@ -101,13 +86,13 @@ public class BoardSquareContainer extends GridPane {
 	 */
 	private void generateSquareDisplays() {
 		this.squares = new ArrayList<SquarePane>();
-		for (Square square : this.backend.squares.values()) {
+		for (Square square : this.gameScreen.game.getBoard().squares.values()) {
 			SquarePane squareDisplay = new SquarePane(this, square);
 			GridPane.setConstraints(squareDisplay, square.x, square.y);
 			this.getChildren().add(squareDisplay);
 			this.squares.add(squareDisplay);
 		}
-		System.out.println(this.game.getBoard().toBoardString());
+		System.out.println(this.gameScreen.game.getBoard().toBoardString());
 	}
 	
 	/**
@@ -118,7 +103,7 @@ public class BoardSquareContainer extends GridPane {
 		for (SquarePane square : this.squares) {
 			square.render();
 		}
-		System.out.println(this.game.getBoard().toBoardString());
+		System.out.println(this.gameScreen.game.getBoard().toBoardString());
 	}
 	
 	/**
@@ -144,8 +129,8 @@ public class BoardSquareContainer extends GridPane {
 	 * @param _displayClicked
 	 */
 	public void inputSquareClick(SquarePane _displayClicked) {
-		if (this.fromSelection == null || _displayClicked.backend.hasPiece(this.game.getCurrentTurnTeam())) {
-			if (!_displayClicked.backend.hasPiece(this.game.getCurrentTurnTeam()))
+		if (this.fromSelection == null || _displayClicked.backend.hasPiece(this.gameScreen.game.getCurrentTurnTeam())) {
+			if (!_displayClicked.backend.hasPiece(this.gameScreen.game.getCurrentTurnTeam()))
 				return;
 			
 			if (_displayClicked.backend.hasPiece()) {
@@ -156,12 +141,13 @@ public class BoardSquareContainer extends GridPane {
 				return;
 			
 			this.toSelection = _displayClicked;
-			boolean turnSuccessful = this.game.takeTurn(this.fromSelection.backend, this.toSelection.backend);
+			boolean turnSuccessful = this.gameScreen.game.takeTurn(this.fromSelection.backend, this.toSelection.backend);
 			if (turnSuccessful) {
 				this.refreshSquares();
 				this.fromSelection = null;
 				this.toSelection = null;
-				this.game.beginNextTurn();
+				this.gameScreen.game.beginNextTurn();
+				this.gameScreen.refreshGraves();
 			}
 		}
 	}

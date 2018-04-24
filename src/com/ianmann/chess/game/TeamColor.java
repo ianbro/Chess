@@ -32,7 +32,7 @@ public enum TeamColor {
 	WHITE("W");
 	
 	/**
-	 * The initial for this color
+	 * The initial for this color (either 'W' or 'B').
 	 */
 	public String initial;
 	

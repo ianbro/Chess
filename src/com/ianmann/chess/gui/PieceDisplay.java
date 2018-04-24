@@ -53,7 +53,7 @@ public class PieceDisplay extends AnchorPane {
 	 * Adds the image that represents this piece to the anchor pane.
 	 */
 	private void render() {
-		String pieceImagePath = "/resources/themes/" + this.parentContainerBoard.theme + "/pieces/";
+		String pieceImagePath = "/resources/themes/" + this.parentContainerBoard.gameScreen.theme + "/pieces/";
 		if (this.backend.team == TeamColor.WHITE)
 			pieceImagePath += "white/";
 		else if (this.backend.team == TeamColor.BLACK)

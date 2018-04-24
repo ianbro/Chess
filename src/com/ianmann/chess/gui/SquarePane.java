@@ -61,7 +61,7 @@ public class SquarePane extends AnchorPane {
 		this.getChildren().clear();
 		
 		this.image = new Image(getClass().getResourceAsStream(
-				"/resources/themes/" + this.parentContainer.theme + "/square.png"));
+				"/resources/themes/" + this.parentContainer.gameScreen.theme + "/square.png"));
 		this.imageFrame = new ImageView(this.image);
 		this.imageFrame.setFitWidth(this.parentContainer.squareSize);
 		this.imageFrame.setPreserveRatio(true);
