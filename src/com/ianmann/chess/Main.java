@@ -1,7 +1,6 @@
 package com.ianmann.chess;
 	
 import com.ianmann.chess.game.Game;
-import com.ianmann.chess.game.TeamColor;
 import com.ianmann.chess.game.movement.Orientation;
 import com.ianmann.chess.gui.BoardSquareContainer;
 import com.ianmann.chess.gui.PieceDisplay;
@@ -21,7 +20,7 @@ public class Main extends Application {
 		Game game = new Game();
 		
 		try {
-			BoardSquareContainer root = new BoardSquareContainer("development", game.getBoard());
+			BoardSquareContainer root = new BoardSquareContainer(game, "development", game.getBoard());
 			Scene scene = new Scene(root);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);

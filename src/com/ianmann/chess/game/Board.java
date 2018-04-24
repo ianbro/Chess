@@ -30,7 +30,7 @@ import com.ianmann.chess.game.pieces.Rook;
 public class Board {
 	
 	/**
-	 * The game by which this board is controled.
+	 * The game by which this board is controlled.
 	 */
 	public final Game game;
 	
@@ -57,7 +57,8 @@ public class Board {
 	/**
 	 * The starting positions of pieces on each team. This data structure has keys
 	 * of teams that map to the maps of piece classes and a list of where each
-	 * class of piece goes.
+	 * class of piece goes. If you switch these, make sure you switch the orientations
+	 * of the teams in {@link this#game#orientation}.
 	 */
 	private HashMap<TeamColor, HashMap<Class<? extends Piece>, ArrayList<Square>>> startingPositions = new HashMap<TeamColor, HashMap<Class<? extends Piece>, ArrayList<Square>>>();
 	
@@ -142,37 +143,6 @@ public class Board {
 		this.startingPositions.put(TeamColor.WHITE, new HashMap<Class<? extends Piece>, ArrayList<Square>>()
 		{{
 			put(Rook.class, new ArrayList<Square>(){{
-				add(squares.get("0-0"));
-				add(squares.get("7-0"));
-			}});
-			put(Knight.class, new ArrayList<Square>(){{
-				add(squares.get("1-0"));
-				add(squares.get("6-0"));
-			}});
-			put(Bishop.class, new ArrayList<Square>(){{
-				add(squares.get("2-0"));
-				add(squares.get("5-0"));
-			}});
-			put(Queen.class, new ArrayList<Square>(){{
-				add(squares.get("3-0"));
-			}});
-			put(King.class, new ArrayList<Square>(){{
-				add(squares.get("4-0"));
-			}});
-			put(Pawn.class, new ArrayList<Square>(){{
-				add(squares.get("0-1"));
-				add(squares.get("1-1"));
-				add(squares.get("2-1"));
-				add(squares.get("3-1"));
-				add(squares.get("4-1"));
-				add(squares.get("5-1"));
-				add(squares.get("6-1"));
-				add(squares.get("7-1"));
-			}});
-		}});
-		this.startingPositions.put(TeamColor.BLACK, new HashMap<Class<? extends Piece>, ArrayList<Square>>()
-		{{
-			put(Rook.class, new ArrayList<Square>(){{
 				add(squares.get("0-7"));
 				add(squares.get("7-7"));
 			}});
@@ -199,6 +169,37 @@ public class Board {
 				add(squares.get("5-6"));
 				add(squares.get("6-6"));
 				add(squares.get("7-6"));
+			}});
+		}});
+		this.startingPositions.put(TeamColor.BLACK, new HashMap<Class<? extends Piece>, ArrayList<Square>>()
+		{{
+			put(Rook.class, new ArrayList<Square>(){{
+				add(squares.get("0-0"));
+				add(squares.get("7-0"));
+			}});
+			put(Knight.class, new ArrayList<Square>(){{
+				add(squares.get("1-0"));
+				add(squares.get("6-0"));
+			}});
+			put(Bishop.class, new ArrayList<Square>(){{
+				add(squares.get("2-0"));
+				add(squares.get("5-0"));
+			}});
+			put(Queen.class, new ArrayList<Square>(){{
+				add(squares.get("3-0"));
+			}});
+			put(King.class, new ArrayList<Square>(){{
+				add(squares.get("4-0"));
+			}});
+			put(Pawn.class, new ArrayList<Square>(){{
+				add(squares.get("0-1"));
+				add(squares.get("1-1"));
+				add(squares.get("2-1"));
+				add(squares.get("3-1"));
+				add(squares.get("4-1"));
+				add(squares.get("5-1"));
+				add(squares.get("6-1"));
+				add(squares.get("7-1"));
 			}});
 		}});
 	}

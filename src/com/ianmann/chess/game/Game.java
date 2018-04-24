@@ -47,12 +47,13 @@ public class Game {
 	private HashMap<TeamColor, Player> teams;
 	
 	/**
-	 * Maps each team to the direction that they are facing.
+	 * Maps each team to the direction that they are facing. If you switch these, make sure to switch
+	 * the sides of the board that the teams spawn on in {@link this#board#startingPositions}.
 	 */
 	private HashMap<TeamColor, Orientation> orientations = new HashMap<TeamColor, Orientation>()
 	{{
-		put (TeamColor.WHITE, Orientation.SOUTH);
-		put (TeamColor.BLACK, Orientation.NORTH);
+		put (TeamColor.WHITE, Orientation.NORTH);
+		put (TeamColor.BLACK, Orientation.SOUTH);
 	}};
 	
 	/**
@@ -243,10 +244,10 @@ public class Game {
 	}
 	
 	/**
-	 * Does logic to finish a move such as setting the team that goes next and
+	 * Does logic to begin a move such as setting the team that is currently going and
 	 * checking win conditions.
 	 */
-	public void finalizeTurn() {
+	public void beginNextTurn() {
 		this.currentTurnTeam = this.currentTurnTeam.oponent();
 	}
 }

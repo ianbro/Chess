@@ -1,12 +1,13 @@
 package com.ianmann.chess.gui;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.ianmann.chess.game.Board;
+import com.ianmann.chess.game.Game;
 import com.ianmann.chess.game.movement.Square;
 
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
@@ -44,16 +45,32 @@ public class BoardSquareContainer extends GridPane {
 	public final int squareSize;
 
 	/**
-	 * A key-value pair that contains pointers to each square that this board contains.
-	 * Each key is a square's coordinate and it maps to the corresponding {@link SquarePane}
-	 * at that coordinate.
+	 * A list of squares in this board.
 	 */
-	private HashMap<String, SquarePane> squares;
+	private ArrayList<SquarePane> squares;
 	
 	/**
 	 * The back-end representation of this game board.
 	 */
 	public final Board backend;
+	
+	/**
+	 * The game that this board display is for.
+	 */
+	public final Game game;
+	
+	/**
+	 * Designates where the user has selected to move from. This is set when they click a
+	 * piece on the board that belongs to them.
+	 */
+	private SquarePane fromSelection;
+	
+	/**
+	 * Designates where the user has selected to move to. This is set when they click a
+	 * square on the board after selecting a square to move from and that square is a
+	 * valid destination for the piece on fromSelection.
+	 */
+	private SquarePane toSelection;
 	
 	/**
 	 * <p>
@@ -66,7 +83,8 @@ public class BoardSquareContainer extends GridPane {
 	 * @param _theme
 	 * @param _backend
 	 */
-	public BoardSquareContainer(String _theme, Board _backend) {
+	public BoardSquareContainer(Game _game, String _theme, Board _backend) {
+		this.game = _game;
 		this.backend = _backend;
 		this.theme = _theme;
 		this.squareSize = 75;
@@ -82,12 +100,49 @@ public class BoardSquareContainer extends GridPane {
 	 * Adds a display to this board pane for each square in this board pane's back-end.
 	 */
 	private void generateSquareDisplays() {
-		this.squares = new HashMap<String, SquarePane>();
+		this.squares = new ArrayList<SquarePane>();
 		for (Square square : this.backend.squares.values()) {
 			SquarePane squareDisplay = new SquarePane(this, square);
 			GridPane.setConstraints(squareDisplay, square.x, square.y);
 			this.getChildren().add(squareDisplay);
-			this.squares.put(square.coordinateString(), squareDisplay);
+			this.squares.add(squareDisplay);
+		}
+		System.out.println(this.game.getBoard().toBoardString());
+	}
+	
+	/**
+	 * Loops through each square in this board and draws it again. This is to refresh the
+	 * board after each move.
+	 */
+	private void refreshSquares() {
+		for (SquarePane square : this.squares) {
+			square.render();
+		}
+		System.out.println(this.game.getBoard().toBoardString());
+	}
+	
+	public void inputSquareClick(SquarePane _displayClicked) {
+		if (this.fromSelection == null || _displayClicked.backend.hasPiece(this.game.getCurrentTurnTeam())) {
+			System.out.println("from square");
+			if (!_displayClicked.backend.hasPiece(this.game.getCurrentTurnTeam()))
+				return;
+			
+			if (_displayClicked.backend.hasPiece()) {
+				this.fromSelection = _displayClicked;
+			}
+		} else {
+			System.out.println("to square");
+			if (!this.fromSelection.backend.getPiece().canMove(_displayClicked.backend))
+				return;
+			
+			this.toSelection = _displayClicked;
+			boolean turnSuccessful = this.game.takeTurn(this.fromSelection.backend, this.toSelection.backend);
+			if (turnSuccessful) {
+				this.refreshSquares();
+				this.fromSelection = null;
+				this.toSelection = null;
+				this.game.beginNextTurn();
+			}
 		}
 	}
 }

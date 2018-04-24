@@ -20,12 +20,12 @@ public class SquarePane extends AnchorPane {
 	/**
 	 * The frame on the square pane that contains the image of the square.
 	 */
-	private final ImageView imageFrame;
+	private ImageView imageFrame;
 	
 	/**
 	 * The image that is the actual display for the square.
 	 */
-	private final Image image;
+	private Image image;
 	
 	/**
 	 * The actual back-end object that represents this square. This {@link SquarePane}
@@ -48,23 +48,25 @@ public class SquarePane extends AnchorPane {
 		this.parentContainer = _parentContainer;
 		this.backend = _backend;
 		
-		this.image = new Image(getClass().getResourceAsStream(
-				"/resources/themes/" + this.parentContainer.theme + "/square.png"));
-		this.imageFrame = new ImageView(this.image);
-		this.imageFrame.setFitWidth(this.parentContainer.squareSize);
-		this.imageFrame.setPreserveRatio(true);
-		super.getChildren().add(this.imageFrame);
-		
 		this.setOnMouseClicked(new SquareClickedHandler(this));
 		
-		this.syncBackend();
+		this.render();
 	}
 	
 	/**
 	 * Draws the corresponding piece that is in this square on the display for this
 	 * square.
 	 */
-	public void syncBackend() {
+	public void render() {
+		this.getChildren().clear();
+		
+		this.image = new Image(getClass().getResourceAsStream(
+				"/resources/themes/" + this.parentContainer.theme + "/square.png"));
+		this.imageFrame = new ImageView(this.image);
+		this.imageFrame.setFitWidth(this.parentContainer.squareSize);
+		this.imageFrame.setPreserveRatio(true);
+		this.getChildren().add(this.imageFrame);
+		
 		if (this.backend.hasPiece()) {
 			PieceDisplay pieceDisplay = new PieceDisplay(this.parentContainer, this.backend.getPiece());
 			this.getChildren().add(pieceDisplay);
@@ -95,7 +97,7 @@ class SquareClickedHandler implements EventHandler<Event> {
 	 * @param event
 	 */
 	public void handle(Event event) {
-		// Place piece on the square here.
 		System.out.println("Click: " + this.square.backend.coordinateString());
+		this.square.parentContainer.inputSquareClick(this.square);
 	}
 }
