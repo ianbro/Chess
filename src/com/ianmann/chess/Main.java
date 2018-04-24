@@ -1,6 +1,11 @@
 package com.ianmann.chess;
 	
+import com.ianmann.chess.game.Game;
+import com.ianmann.chess.game.TeamColor;
 import com.ianmann.chess.game.movement.Orientation;
+import com.ianmann.chess.gui.BoardSquareContainer;
+import com.ianmann.chess.gui.PieceDisplay;
+import com.ianmann.chess.gui.SquarePane;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -13,9 +18,11 @@ public class Main extends Application {
 	public void start(Stage primaryStage) {
 		Orientation.initRelativeOrientation();
 		
+		Game game = new Game();
+		
 		try {
-			BorderPane root = new BorderPane();
-			Scene scene = new Scene(root,400,400);
+			BoardSquareContainer root = new BoardSquareContainer("development", game.getBoard());
+			Scene scene = new Scene(root);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
 			primaryStage.show();
