@@ -154,6 +154,9 @@ public class King extends Piece {
 		ArrayList<MovementPath> toRemove = new ArrayList<MovementPath>();
 		for (MovementPath path : _paths) {
 			for (Piece enemy : this.board.getLivePieces(this.team.oponent())) {
+				System.out.println(this.team);
+				System.out.println(enemy);
+				System.out.println(enemy.getLocation());
 				if (enemy.couldAttack(path.getLast())) {
 					toRemove.add(path);
 					break;

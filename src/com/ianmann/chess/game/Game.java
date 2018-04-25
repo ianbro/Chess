@@ -184,6 +184,7 @@ public class Game {
 					add(_piece);
 				}});
 			}
+			livePieces.remove(_piece);
 			return true;
 		}
 		else

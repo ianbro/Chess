@@ -50,36 +50,54 @@ public class PieceDisplay extends AnchorPane {
 	}
 	
 	/**
+	 * Returns the image that represents the given _pieceType for the given _team. The correct _theme is used
+	 * to get the piece image and then it is sized according to _imageSize and returned.
+	 * @param _pieceType
+	 * @param _team
+	 * @param _theme
+	 * @param _imageSize
+	 * @return
+	 */
+	public static ImageView getDisplay(Class<? extends Piece> _pieceType, TeamColor _team, String _theme, double _imageSize) {
+		Image image;
+		ImageView imageFrame;
+		
+		String pieceImagePath = "/resources/themes/" + _theme + "/pieces/";
+		if (_team == TeamColor.WHITE)
+			pieceImagePath += "white/";
+		else if (_team == TeamColor.BLACK)
+			pieceImagePath += "black/";
+		else
+			System.err.println("Could not find a piece set for the team: " + _team.toString());
+		
+		if (Pawn.class.equals(_pieceType))
+			pieceImagePath += "pawn.png";
+		else if (King.class.equals(_pieceType))
+			pieceImagePath += "king.png";
+		else if (Queen.class.equals(_pieceType))
+			pieceImagePath += "queen.png";
+		else if (Bishop.class.equals(_pieceType))
+			pieceImagePath += "bishop.png";
+		else if (Knight.class.equals(_pieceType))
+			pieceImagePath += "knight.png";
+		else if (Rook.class.equals(_pieceType))
+			pieceImagePath += "rook.png";
+		else
+			System.err.println("Could not find a " + _pieceType.getSimpleName() + " for the team: " + _team.toString());
+		
+		image = new Image(PieceDisplay.class.getResourceAsStream(pieceImagePath));
+		imageFrame = new ImageView(image);
+		imageFrame.setFitWidth(_imageSize);
+		imageFrame.setPreserveRatio(true);
+		return imageFrame;
+	}
+	
+	/**
 	 * Adds the image that represents this piece to the anchor pane.
 	 */
 	private void render() {
-		String pieceImagePath = "/resources/themes/" + this.parentContainerBoard.gameScreen.theme + "/pieces/";
-		if (this.backend.team == TeamColor.WHITE)
-			pieceImagePath += "white/";
-		else if (this.backend.team == TeamColor.BLACK)
-			pieceImagePath += "black/";
-		else
-			System.err.println("Could not find a piece set for the team: " + this.backend.team.toString());
-		
-		if (Pawn.class.isInstance(this.backend))
-			pieceImagePath += "pawn.png";
-		else if (King.class.isInstance(this.backend))
-			pieceImagePath += "king.png";
-		else if (Queen.class.isInstance(this.backend))
-			pieceImagePath += "queen.png";
-		else if (Bishop.class.isInstance(this.backend))
-			pieceImagePath += "bishop.png";
-		else if (Knight.class.isInstance(this.backend))
-			pieceImagePath += "knight.png";
-		else if (Rook.class.isInstance(this.backend))
-			pieceImagePath += "rook.png";
-		else
-			System.err.println("Could not find a " + this.backend.getClass().getSimpleName() + " for the team: " + this.backend.team.toString());
-		
-		this.image = new Image(this.getClass().getResourceAsStream(pieceImagePath));
-		this.imageFrame = new ImageView(this.image);
-		this.imageFrame.setFitWidth(this.parentContainerBoard.squareSize);
-		this.imageFrame.setPreserveRatio(true);
+		this.imageFrame = PieceDisplay.getDisplay(this.backend.getClass(), this.backend.team,
+								this.parentContainerBoard.gameScreen.theme, this.parentContainerBoard.squareSize);
 		this.getChildren().add(this.imageFrame);
 	}
 }

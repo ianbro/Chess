@@ -15,7 +15,12 @@ import com.ianmann.chess.game.pieces.Rook;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 
 /**
  * Wrapper class for a grave pane. This controls the fxml that shows the grave for
@@ -67,45 +72,54 @@ public class GravePane {
 		this.renderGrave();
 	}
 	
+	/**
+	 * Draws the grave according to which pieces are dead. The grave will be drawn with a picture of each type
+	 * of piece that is dead and a quantity next to it representing how many of that piece type is dead.
+	 */
 	public void renderGrave() {
 		this.piecesContainer.getChildren().clear();
+		
+		HashMap<Class<? extends Piece>, Integer> graveStatsByPieceClass = new HashMap<Class<? extends Piece>, Integer>();
+		
+		/*
+		 * Tally up all the dead pieces according to their piece class. Put this
+		 * tally into graveStatsByPieceClass.
+		 */
 		HashMap<Class<? extends Piece>, ArrayList<Piece>> grave = this.parentGameScreen.game.getCapturedPieces(this.team);
 		for (Class<? extends Piece> deadGroupClass : grave.keySet()) {
 			for (int i = 0; i < grave.get(deadGroupClass).size(); i ++) {
-				ImageView imageFrame = this.getGraveCategoryImage(deadGroupClass);
-				this.piecesContainer.getChildren().add(imageFrame);
+				if (graveStatsByPieceClass.containsKey(deadGroupClass))
+					graveStatsByPieceClass.put(deadGroupClass, ((Integer) graveStatsByPieceClass.get(deadGroupClass)) + 1);
+				else
+					graveStatsByPieceClass.put(deadGroupClass, 1);
 			}
+		}
+		
+		/*
+		 * Loop through graveStatsByPieceClass and draw the HBox that displays the death stat for
+		 * each piece class.
+		 */
+		for (Class<? extends Piece> deadGroupClass : graveStatsByPieceClass.keySet()) {
+			int deathTally = graveStatsByPieceClass.get(deadGroupClass);
+			HBox statDisplayContainer = this.getDeadPieceTally(deadGroupClass, deathTally);
+			this.piecesContainer.getChildren().add(statDisplayContainer);
 		}
 	}
 	
-	private ImageView getGraveCategoryImage(Class<? extends Piece> pieceType) {
-		String pieceImagePath = "/resources/themes/" + this.parentGameScreen.theme + "/pieces/";
-		if (this.team == TeamColor.WHITE)
-			pieceImagePath += "white/";
-		else if (this.team == TeamColor.BLACK)
-			pieceImagePath += "black/";
-		else
-			System.err.println("Could not find a piece set for the team: " + this.team.toString());
-		
-		if (Pawn.class.equals(pieceType))
-			pieceImagePath += "pawn.png";
-		else if (King.class.equals(pieceType))
-			pieceImagePath += "king.png";
-		else if (Queen.class.equals(pieceType))
-			pieceImagePath += "queen.png";
-		else if (Bishop.class.equals(pieceType))
-			pieceImagePath += "bishop.png";
-		else if (Knight.class.equals(pieceType))
-			pieceImagePath += "knight.png";
-		else if (Rook.class.equals(pieceType))
-			pieceImagePath += "rook.png";
-		else
-			System.err.println("Could not find a " + pieceType.getSimpleName() + " for the team: " + this.team.toString());
-		
-		Image image = new Image(this.getClass().getResourceAsStream(pieceImagePath));
-		ImageView imageFrame = new ImageView(image);
-		imageFrame.setFitWidth(75);
-		imageFrame.setPreserveRatio(true);
-		return imageFrame;
+	/**
+	 * Designs the stat display for a given piece type (_deadGroupClass). The number of dead pieces of this
+	 * type (_deathTally) is displayed right next to an image of that piece type.
+	 * @param _deadGroupClass
+	 * @param _deathTally
+	 * @return
+	 */
+	private HBox getDeadPieceTally(Class<? extends Piece> _deadGroupClass, int _deathTally) {
+		ImageView pieceTypeImageView = PieceDisplay.getDisplay(_deadGroupClass, this.team, this.parentGameScreen.theme, 75);
+		Label tallyLabel = new Label(String.valueOf(_deathTally));
+		tallyLabel.setFont(Font.font("Gruppo", 64.0));
+		tallyLabel.setTextFill(Color.WHITE);
+		tallyLabel.setTextAlignment(TextAlignment.CENTER);
+		HBox statDisplayContainer = new HBox(pieceTypeImageView, tallyLabel);
+		return statDisplayContainer;
 	}
 }

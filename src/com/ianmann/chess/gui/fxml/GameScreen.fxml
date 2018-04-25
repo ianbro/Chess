@@ -14,7 +14,7 @@
    <left>
       <VBox fx:id="whiteGraveDisplay" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="150.0" style="-fx-background-color: #e6e6e6;" BorderPane.alignment="CENTER">
          <children>
-            <Label fx:id="lblTitleW" text="White Grave" />
+            <Label fx:id="lblTitleW" alignment="CENTER" text="White Grave" />
             <VBox fx:id="listPiecesW" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-background-color: #8080ff;" VBox.vgrow="ALWAYS" />
          </children>
          <padding>
@@ -28,7 +28,7 @@
    <right>
       <VBox fx:id="blackGraveDisplay" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="150.0" style="-fx-background-color: #e6e6e6;" BorderPane.alignment="CENTER">
          <children>
-            <Label fx:id="lblTitleB" text="Black Grave" />
+            <Label fx:id="lblTitleB" alignment="CENTER" text="Black Grave" />
             <VBox fx:id="listPiecesB" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-background-color: #8080ff;" VBox.vgrow="ALWAYS" />
          </children>
          <padding>
