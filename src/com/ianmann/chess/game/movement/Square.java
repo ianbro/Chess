@@ -378,6 +378,7 @@ public class Square {
 	 * @return
 	 */
 	public boolean simulatePlacePiece(Piece _piece) {
+		this.markPieceRemoved(this.getPiece());
 		this.piece = _piece;
 		if (this.piece.getLocation() != null)
 			this.piece.getLocation().piece = null;
@@ -402,6 +403,7 @@ public class Square {
 	public boolean markPieceRemoved(Piece _piece) {
 		if (!this.hasPiece()) return false;
 		if (_piece == null || this.getPiece().equals(_piece)) {
+			this.piece.markMovedTo(null);
 			this.piece = null;
 			return true;
 		}

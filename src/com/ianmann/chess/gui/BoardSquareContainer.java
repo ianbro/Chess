@@ -146,7 +146,6 @@ public class BoardSquareContainer extends GridPane {
 				this.refreshSquares();
 				this.fromSelection = null;
 				this.toSelection = null;
-				this.gameScreen.game.beginNextTurn();
 				this.gameScreen.refreshGraves();
 			}
 		}

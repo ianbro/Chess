@@ -132,7 +132,38 @@ public abstract class Piece {
 	 * @return
 	 */
 	public boolean couldAttack(Square _location) {
-		return this.canMove(_location);
+		/*
+		 * This method starts by removing the current friendly piece that's on this square.
+		 * This is because this method is assuming that a piece of this pieces
+		 * Opponent is about to move to this square and so that means that any friendly
+		 * piece would be captured and an opponent would replace it. So this assumes that
+		 * there are no friendlies on _location.
+		 * 
+		 * If friendlies weren't removed then when trying to draw this pieces paths, it would
+		 * ignore _location because it has a friendly piece on it. So that friendly is
+		 * temporarily removed from _location.
+		 * 
+		 * Then it checks to see if this piece can move to _location (now that there are no
+		 * friendlies on that square).
+		 * 
+		 * Then the friendly piece that was on _location (if any) is placed back on the square
+		 * to stay, now that the simulation is done.
+		 */
+		boolean canMove = false;
+		Piece friendlynSquare = null;
+		if (!this.board.isSimulation && _location.hasPiece(this.team)) {
+			friendlynSquare = _location.getPiece();
+			_location.markPieceRemoved(friendlynSquare);
+		}
+		
+		// Getting a null pointer exception here now that we temporarily deleted the friendly piece.
+		canMove = this.canMove(_location);
+		
+		if (friendlynSquare != null) {
+			_location.placePiece(friendlynSquare);
+		}
+		
+		return canMove;
 	}
 	
 	/**

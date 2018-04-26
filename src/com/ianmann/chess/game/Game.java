@@ -200,12 +200,30 @@ public class Game {
 	}
 	
 	/**
+	 * <p>
 	 * Determines whether or not the given team's king is in check-mate (They are
-	 * in check and the king has no where to move.
+	 * in check and they have no valid move to make that would get their king out of
+	 * check.
+	 * </p>
+	 * <p>
+	 * A team may have no valid moves but not be in check mate. This is only the case if it
+	 * is not currently their turn. If the other team moves so that this team then has
+	 * a valid move, they will no longer be in stale mate and so this should always return
+	 * false if the games current moving team is not _team.
+	 * </p>
 	 * @return
 	 */
 	public boolean teamIsInCheckMate(TeamColor _team) {
-		return this.teamIsInCheck(_team) && this.board.getKing(_team).getPaths().size() == 0;
+		if (!this.teamIsInCheck(_team) || this.currentTurnTeam != _team) return false;
+		
+		for (Piece piece : this.getLivePieces(_team)) {
+			if (piece.getPaths().size() > 0) {
+				return false;
+			}
+		}
+		/* If the loop finishes, then no piece was found to have a valid path so this team is
+		in check mate. */
+		return true;
 	}
 	
 	/**
@@ -255,7 +273,10 @@ public class Game {
 			return false;
 		if (!_from.hasPiece(this.currentTurnTeam))
 			return false;
-		return this.getBoard().movePiece(_from, _to);
+		boolean moveSuccessful = this.getBoard().movePiece(_from, _to);
+		if (moveSuccessful)
+			this.beginNextTurn();
+		return moveSuccessful;
 	}
 	
 	/**
@@ -264,5 +285,9 @@ public class Game {
 	 */
 	public void beginNextTurn() {
 		this.currentTurnTeam = this.currentTurnTeam.oponent();
+		if (this.teamIsInCheckMate(this.currentTurnTeam))
+			System.out.println("Check mate!");
+		else if (this.teamIsInStaleMate(this.currentTurnTeam))
+			System.out.println("Stale mate!");
 	}
 }
