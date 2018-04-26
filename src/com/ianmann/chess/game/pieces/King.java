@@ -14,6 +14,7 @@ import com.ianmann.chess.game.Piece;
 import com.ianmann.chess.game.TeamColor;
 import com.ianmann.chess.game.movement.Direction;
 import com.ianmann.chess.game.movement.MovementPath;
+import com.ianmann.chess.game.movement.Orientation;
 import com.ianmann.chess.game.movement.Square;
 
 /**
@@ -24,6 +25,35 @@ import com.ianmann.chess.game.movement.Square;
  *
  */
 public class King extends Piece {
+
+	/**
+	 * Designates whether or not this pawn as moved in the
+	 * game yet. This is used to determine whether or not this
+	 * king can castle with a rook.
+	 */
+	private boolean hasMoved = false;
+	
+	/**
+	 * Read only accessor for {@link this#hasMoved}.
+	 * @return
+	 */
+	public boolean hasMoved() {
+		return this.hasMoved;
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.ianmann.chess.game.Piece#markMovedTo(com.ianmann.chess.game.movement.Square)
+	 */
+	/**
+	 * @Override
+	 * Pawns cannot move more than one square at a time once they take their first move.
+	 * This method will mark that this king has already moved and therefore may not
+	 * perform a castle maneuver anymore.
+	 */
+	public void markMovedTo(Square _location) {
+		super.markMovedTo(_location);
+		this.hasMoved = true;
+	}
 
 	/**
 	 * @param _team
@@ -82,6 +112,18 @@ public class King extends Piece {
 		pathBackwardLeft.buildDiagonal(Direction.BACKWARD, Direction.LEFT, 1);
 		if (pathBackwardLeft.finish(false))
 			paths.add(pathBackwardLeft);
+		
+		if (!this.hasMoved) {
+			MovementPath castleWest = new MovementPath(this.location, this.getOrientation(), this.team, Orientation.WEST);
+			boolean castleValidWest = castleWest.buildCastleMove();
+			if (castleValidWest)
+				paths.add(castleWest);
+			
+			MovementPath castleEast = new MovementPath(this.location, this.getOrientation(), this.team, Orientation.EAST);
+			boolean castleValidEast = castleEast.buildCastleMove();
+			if (castleValidEast)
+				paths.add(castleEast);
+		}
 		
 		/*
 		 * Stack overflow exception because evaluating other kings can move.
@@ -172,6 +214,7 @@ public class King extends Piece {
 	 */
 	public boolean isInCheck() {
 		for (Piece enemy : this.board.getLivePieces(this.team.oponent())) {
+			if (King.class.isInstance(enemy)) continue;
 			if (enemy.canAttack(this)) {
 				return true;
 			}
@@ -230,6 +273,7 @@ public class King extends Piece {
 	 */
 	public Piece copy(Board _board) {
 		King newKing = new King(_board, this.team);
+		newKing.hasMoved = this.hasMoved;
 		return newKing;
 	}
 }

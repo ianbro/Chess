@@ -150,6 +150,7 @@ public class Pawn extends Piece {
 	 */
 	public Piece copy(Board _board) {
 		Pawn newPawn = new Pawn(_board, this.team);
+		newPawn.hasMoved = this.hasMoved;
 		return newPawn;
 	}
 

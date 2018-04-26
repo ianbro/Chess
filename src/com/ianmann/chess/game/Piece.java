@@ -95,20 +95,25 @@ public abstract class Piece {
 	}
 	
 	/**
+	 * <p>
 	 * Determines whether or not this piece can move to the given destination.
 	 * This is done by looping through all the paths found in {@link this#getPaths()}
 	 * and looking to see if any of those paths contain _destination as a
 	 * possible square that this piece can land on.
+	 * </p>
+	 * <p>
+	 * If this piece has a valid path to the _destination, that path is returned.
+	 * </p>
 	 * @param _destination
 	 * @return
 	 */
-	public boolean canMove(Square _destination) {
+	public MovementPath canMove(Square _destination) {
 		for (MovementPath path : this.getPaths()) {
 			if (path.containsDestination(_destination) ) {
-				return true;
+				return path;
 			}
 		}
-		return false;
+		return null;
 	}
 	
 	/**
@@ -118,7 +123,7 @@ public abstract class Piece {
 	 * @return
 	 */
 	public boolean canAttack(Piece _piece) {
-		return this.canMove(_piece.location);
+		return this.canMove(_piece.location) != null;
 	}
 	
 	/**
@@ -157,7 +162,7 @@ public abstract class Piece {
 		}
 		
 		// Getting a null pointer exception here now that we temporarily deleted the friendly piece.
-		canMove = this.canMove(_location);
+		canMove = this.canMove(_location) != null;
 		
 		if (friendlynSquare != null) {
 			_location.placePiece(friendlynSquare);

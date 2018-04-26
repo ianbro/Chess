@@ -9,6 +9,7 @@ package com.ianmann.chess.game;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.ianmann.chess.game.movement.MovementPath;
 import com.ianmann.chess.game.movement.Orientation;
 import com.ianmann.chess.game.movement.Square;
 import com.ianmann.chess.game.pieces.Bishop;
@@ -307,7 +308,7 @@ public class Board {
 		Square fromSquare = this.squares.get(_fromCoordinates);
 		Square toSquare = this.squares.get(_toCoordinates);
 		if (fromSquare.hasPiece())
-			if (!fromSquare.getPiece().canMove(toSquare)) return false;
+			if (fromSquare.getPiece().canMove(toSquare) == null) return false;
 		if (fromSquare == null || toSquare == null)
 			return false;
 		if (!fromSquare.hasPiece())
@@ -334,8 +335,9 @@ public class Board {
 	 * @return
 	 */
 	public boolean movePiece(Square _fromSquare, Square _toSquare) {
+		MovementPath pathToDestination = _fromSquare.getPiece().canMove(_toSquare);
 		if (_fromSquare.hasPiece())
-			if (!_fromSquare.getPiece().canMove(_toSquare)) return false;
+			if (pathToDestination == null) return false;
 		if (_fromSquare == null || _toSquare == null)
 			return false;
 		if (!_fromSquare.hasPiece())
@@ -343,7 +345,13 @@ public class Board {
 		if (_toSquare.hasPiece(_fromSquare.getPiece().team))
 			return false;
 
-		return _toSquare.placePiece(_fromSquare.getPiece());
+		boolean canMove = _toSquare.placePiece(_fromSquare.getPiece());
+		
+		if (pathToDestination.isCastle) {
+			pathToDestination.getCastlingRookDestination().placePiece(pathToDestination.getCastlingRook());
+		}
+		
+		return canMove;
 	}
 	
 	/**

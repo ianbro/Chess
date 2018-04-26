@@ -15,6 +15,7 @@ import com.ianmann.chess.game.TeamColor;
 import com.ianmann.chess.game.movement.Direction;
 import com.ianmann.chess.game.movement.MovementPath;
 import com.ianmann.chess.game.movement.Orientation;
+import com.ianmann.chess.game.movement.Square;
 
 /**
  * @TODO: TODO
@@ -24,6 +25,35 @@ import com.ianmann.chess.game.movement.Orientation;
  *
  */
 public class Rook extends Piece {
+
+	/**
+	 * Designates whether or not this pawn as moved in the
+	 * game yet. This is used to determine whether or not this
+	 * rook can castle with a king.
+	 */
+	private boolean hasMoved = false;
+	
+	/* (non-Javadoc)
+	 * @see com.ianmann.chess.game.Piece#markMovedTo(com.ianmann.chess.game.movement.Square)
+	 */
+	/**
+	 * @Override
+	 * Pawns cannot move more than one square at a time once they take their first move.
+	 * This method will mark that this rook has already moved and therefore may not
+	 * perform a castle maneuver anymore.
+	 */
+	public void markMovedTo(Square _location) {
+		super.markMovedTo(_location);
+		this.hasMoved = true;
+	}
+	
+	/**
+	 * Read only accessor for {@link this#hasMoved}.
+	 * @return
+	 */
+	public boolean hasMoved() {
+		return this.hasMoved;
+	}
 
 	/**
 	 * @param _team
@@ -78,6 +108,7 @@ public class Rook extends Piece {
 	 */
 	public Piece copy(Board _board) {
 		Rook newRook = new Rook(_board, this.team);
+		newRook.hasMoved = this.hasMoved;
 		return newRook;
 	}
 

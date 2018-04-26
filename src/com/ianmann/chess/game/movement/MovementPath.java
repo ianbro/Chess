@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 import com.ianmann.chess.game.TeamColor;
+import com.ianmann.chess.game.pieces.Rook;
 
 /**
  * <p>
@@ -66,6 +67,27 @@ public class MovementPath extends LinkedList<Square> {
 	public final boolean isContinuous;
 	
 	/**
+	 * Determines whether or not this move is a castle maneuver by the king and a rook.
+	 */
+	public final boolean isCastle;
+	
+	/**
+	 * The rook that the king following this castle maneuver will castle with.
+	 */
+	private Rook castlingRook;
+	
+	/**
+	 * The square that the rook will be placed on if the king actually performs this
+	 * castling move.
+	 */
+	private Square castlingRookDestination;
+	
+	/**
+	 * Orientation that the king following this castle maneuver would move.
+	 */
+	private Orientation castlingOrientation;
+	
+	/**
 	 * The team that this path is relative to. This is used to ensure that the path does
 	 * not allow the piece following it to end on squares with pieces of their own team.
 	 */
@@ -73,7 +95,8 @@ public class MovementPath extends LinkedList<Square> {
 	
 	/**
 	 * Instantiate an abstraction of a path of movement that a
-	 * game piece can take.
+	 * game piece can take. This specific path will represent a castling maneuver between
+	 * a King and a Rook.
 	 * @param _root
 	 * @param _orientation
 	 * @param _isContinuous Represents whether or not this path is a continuous path
@@ -88,6 +111,46 @@ public class MovementPath extends LinkedList<Square> {
 		this.orientation = _orientation;
 		this.isContinuous = _isContinuous;
 		this.team = _team;
+		this.isCastle = false;
+		this.castlingRook = null;
+	}
+	
+	/**
+	 * Instantiate an abstraction of a path of movement that a
+	 * game piece can take.
+	 * @param _root
+	 * @param _orientation
+	 * @param _isContinuous Represents whether or not this path is a continuous path
+	 * (movement can end at any point along this path) or a
+	 * destination path (movement can only end at the end of this
+	 * path).
+	 * @param _team The team that this path is relative to.
+	 */
+	public MovementPath(Square _root, Orientation _orientation, TeamColor _team, Orientation _castlingOrientation) {
+		this.root = _root;
+		this.currentBuild = _root;
+		this.orientation = _orientation;
+		this.isContinuous = false;
+		this.team = _team;
+		this.isCastle = true;
+		this.castlingOrientation = _castlingOrientation;
+	}
+	
+	/**
+	 * Returns the rook that is castling with the king.
+	 * @return
+	 */
+	public Rook getCastlingRook() {
+		return this.castlingRook;
+	}
+	
+	/**
+	 * Returns the destination where the castling rook will end up going if this path
+	 * is followed by the king.
+	 * @return
+	 */
+	public Square getCastlingRookDestination() {
+		return this.castlingRookDestination;
 	}
 	
 	/**
@@ -156,6 +219,47 @@ public class MovementPath extends LinkedList<Square> {
 			this.add(neighbor);
 		}
 		return count;
+	}
+	
+	public boolean buildCastleMove() {
+		int kingMoveLength = 0;
+		if (this.castlingOrientation == Orientation.EAST) {
+			// Assuming Queen starts on the left.
+			kingMoveLength = 2;
+			Square castlingRookSquare = this.root
+					.neighbor(this.castlingOrientation)
+					.neighbor(this.castlingOrientation)
+					.neighbor(this.castlingOrientation);
+			this.castlingRook = (Rook) castlingRookSquare.getPiece();
+			this.castlingRookDestination = this.root
+					.neighbor(this.castlingOrientation);
+		} else {
+			// Assuming Queen starts on the left.
+			kingMoveLength = 3;
+			Square castlingRookSquare = this.root
+					.neighbor(this.castlingOrientation)
+					.neighbor(this.castlingOrientation)
+					.neighbor(this.castlingOrientation)
+					.neighbor(this.castlingOrientation);
+			if (!Rook.class.isInstance(castlingRookSquare.getPiece())) {
+				System.out.println(this.root);
+				System.out.println("not rook");
+			}
+			this.castlingRook = (Rook) castlingRookSquare.getPiece();
+			this.castlingRookDestination = this.root
+					.neighbor(this.castlingOrientation)
+					.neighbor(this.castlingOrientation);
+		}
+		if (this.castlingRook == null || this.castlingRook.hasMoved()) return false;
+		
+		for (int i = 0; i < kingMoveLength; i ++) {
+			this.currentBuild = this.currentBuild.neighbor(this.castlingOrientation);
+			if (this.currentBuild.hasPiece())
+				return false;
+		}
+		
+		this.add(this.currentBuild);
+		return this.finish(false);
 	}
 	
 	/**

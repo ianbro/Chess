@@ -137,7 +137,7 @@ public class BoardSquareContainer extends GridPane {
 				this.fromSelection = _displayClicked;
 			}
 		} else {
-			if (!this.fromSelection.backend.getPiece().canMove(_displayClicked.backend))
+			if (this.fromSelection.backend.getPiece().canMove(_displayClicked.backend) == null)
 				return;
 			
 			this.toSelection = _displayClicked;
