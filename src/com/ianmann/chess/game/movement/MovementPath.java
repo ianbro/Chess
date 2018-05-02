@@ -6,11 +6,10 @@
  */
 package com.ianmann.chess.game.movement;
 
-import java.time.chrono.IsoChronology;
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 import com.ianmann.chess.game.TeamColor;
+import com.ianmann.chess.game.pieces.Pawn;
 import com.ianmann.chess.game.pieces.Rook;
 
 /**
@@ -72,6 +71,17 @@ public class MovementPath extends LinkedList<Square> {
 	public final boolean isCastle;
 	
 	/**
+	 * Represents whether or not this move is an en-passent move by a pawn. The pawn following
+	 * this movement path is the one doing the capture.
+	 */
+	public final boolean isEnPassent;
+	
+	/**
+	 * Represents whether or not this move is a double move by a pawn on it's first move.
+	 */
+	public final boolean isPawnLeap;
+	
+	/**
 	 * The rook that the king following this castle maneuver will castle with.
 	 */
 	private Rook castlingRook;
@@ -88,31 +98,65 @@ public class MovementPath extends LinkedList<Square> {
 	private Orientation castlingOrientation;
 	
 	/**
+	 * The pawn that the pawn following this MovementPath will capture if it takes this path.
+	 */
+	private Pawn pawnToCaptureEnPassent;
+	
+	/**
 	 * The team that this path is relative to. This is used to ensure that the path does
 	 * not allow the piece following it to end on squares with pieces of their own team.
 	 */
 	private TeamColor team;
 	
 	/**
+	 * <p>
+	 * Instantiate an abstraction of a path of movement that a game piece can take. This
+	 * specific path will represent an en-passent maneuver to capture a pawn trying to
+	 * pass the pawn following this path.
+	 * </p>
+	 * <p>
+	 * The team for this {@link MovementPath} will be set to that of the piece on _root.
+	 * </p>
+	 * @param _root The location that the pawn being passed lies. This pawn is the one performing
+	 * the capture and en-passent maneuver.
+	 * @param _orientation The orientation of the pawn on _root (the one performing the en-passent
+	 * maneuver.
+	 * @param _pawnToCaptureEnPassent The pawn that tried to pass the pawn on _root. This is
+	 * the one that will be captured en-passent.
+	 */
+	public MovementPath(Square _root, Orientation _orientation, Pawn _pawnToCaptureEnPassent) {
+		this.root = _root;
+		this.currentBuild = _root;
+		this.orientation = _orientation;
+		this.team = _root.getPiece().team.oponent();
+		this.isContinuous = false;
+		this.isCastle = false;
+		this.isPawnLeap = false;
+		this.isEnPassent = true;
+		this.pawnToCaptureEnPassent = _pawnToCaptureEnPassent;
+	}
+	
+	/**
 	 * Instantiate an abstraction of a path of movement that a
-	 * game piece can take. This specific path will represent a castling maneuver between
-	 * a King and a Rook.
+	 * game piece can take. This constructor is for a pawns leap move as its first move.
 	 * @param _root
 	 * @param _orientation
 	 * @param _isContinuous Represents whether or not this path is a continuous path
 	 * (movement can end at any point along this path) or a
 	 * destination path (movement can only end at the end of this
 	 * path).
+	 * @param _isPawnLeap Denotes that this move is a leap move as a pawns first move going two spaces.
 	 * @param _team The team that this path is relative to.
 	 */
-	public MovementPath(Square _root, Orientation _orientation, boolean _isContinuous, TeamColor _team) {
+	public MovementPath(Square _root, Orientation _orientation, boolean _isContinuous, boolean _isPawnLeap, TeamColor _team) {
 		this.root = _root;
 		this.currentBuild = _root;
 		this.orientation = _orientation;
 		this.isContinuous = _isContinuous;
+		this.isPawnLeap = _isPawnLeap;
 		this.team = _team;
 		this.isCastle = false;
-		this.castlingRook = null;
+		this.isEnPassent = false;
 	}
 	
 	/**
@@ -126,11 +170,33 @@ public class MovementPath extends LinkedList<Square> {
 	 * path).
 	 * @param _team The team that this path is relative to.
 	 */
+	public MovementPath(Square _root, Orientation _orientation, boolean _isContinuous, TeamColor _team) {
+		this.root = _root;
+		this.currentBuild = _root;
+		this.orientation = _orientation;
+		this.isContinuous = _isContinuous;
+		this.isPawnLeap = false;
+		this.team = _team;
+		this.isCastle = false;
+		this.isEnPassent = false;
+	}
+	
+	/**
+	 * Instantiate an abstraction of a path of movement that a
+	 * game piece can take. This specific path will represent a castling maneuver between
+	 * a King and a Rook.
+	 * @param _root
+	 * @param _orientation
+	 * @param _team The team that this path is relative to.
+	 * @param _castlingOrientation The orientation in which the king will move in this castle maneuver.
+	 */
 	public MovementPath(Square _root, Orientation _orientation, TeamColor _team, Orientation _castlingOrientation) {
 		this.root = _root;
 		this.currentBuild = _root;
 		this.orientation = _orientation;
 		this.isContinuous = false;
+		this.isEnPassent = false;
+		this.isPawnLeap = false;
 		this.team = _team;
 		this.isCastle = true;
 		this.castlingOrientation = _castlingOrientation;
@@ -142,6 +208,14 @@ public class MovementPath extends LinkedList<Square> {
 	 */
 	public Rook getCastlingRook() {
 		return this.castlingRook;
+	}
+	
+	/**
+	 * Returns the pawn that will be captured en-passent by the pawn on {@link this#root}.
+	 * @return
+	 */
+	public Pawn getPawnToCaptureEnPassent() {
+		return this.pawnToCaptureEnPassent;
 	}
 	
 	/**
@@ -241,10 +315,6 @@ public class MovementPath extends LinkedList<Square> {
 					.neighbor(this.castlingOrientation)
 					.neighbor(this.castlingOrientation)
 					.neighbor(this.castlingOrientation);
-			if (!Rook.class.isInstance(castlingRookSquare.getPiece())) {
-				System.out.println(this.root);
-				System.out.println("not rook");
-			}
 			this.castlingRook = (Rook) castlingRookSquare.getPiece();
 			this.castlingRookDestination = this.root
 					.neighbor(this.castlingOrientation)
@@ -260,6 +330,20 @@ public class MovementPath extends LinkedList<Square> {
 		
 		this.add(this.currentBuild);
 		return this.finish(false);
+	}
+	
+	/**
+	 * Build this path as if it represents an en-passent move. This just sets the destination for the
+	 * offensive pawn (the one doing the move).
+	 * @return
+	 */
+	public boolean buildEnPassentMove() {
+		// Setting it to the neighbor of pawnToCaptureEnPassent in the forward direction... but
+		// the forward direction is relative to this.orientation which is actually the orientation
+		// of this.pawnToCaptureEnPassent's oponent so it's backward to this.pawnToCaptureEnPassent
+		// instead of forward
+		this.add(this.pawnToCaptureEnPassent.getLocation().neighbor(this.orientation, Direction.FORWARD));
+		return this.finish(true);
 	}
 	
 	/**
@@ -315,6 +399,36 @@ public class MovementPath extends LinkedList<Square> {
 				this.clear();
 		}
 		return this.size() > 0;
+	}
+	
+	private void alertPassedPawnsOfEnPassent() {
+		if (this.isPawnLeap) {
+			System.out.println("alerting");
+			Square eastNeighbor = this.getLast().neighbor(Orientation.EAST);
+			if (eastNeighbor.hasPiece(this.team.oponent()) && Pawn.class.isInstance(eastNeighbor.getPiece()))
+				((Pawn) eastNeighbor.getPiece()).addEnPassentMove((Pawn) this.getLast().getPiece());
+			
+			Square westNeighbor = this.getLast().neighbor(Orientation.WEST);
+			if (westNeighbor.hasPiece(this.team.oponent()) && Pawn.class.isInstance(westNeighbor.getPiece()))
+				((Pawn) westNeighbor.getPiece()).addEnPassentMove((Pawn) this.getLast().getPiece());
+		}
+	}
+	
+	public void performSpecialEvents() {
+		System.out.println("performing special events");
+		if (this.isCastle)
+			this.getCastlingRookDestination().placePiece(this.getCastlingRook());
+		if (this.isPawnLeap)
+			this.alertPassedPawnsOfEnPassent();
+		if (this.isEnPassent) {
+			if (this.getPawnToCaptureEnPassent().board.isSimulation) {
+				this.getPawnToCaptureEnPassent().getLocation().markPieceRemoved(this.getPawnToCaptureEnPassent());
+				this.getPawnToCaptureEnPassent().markMovedTo(null);
+				this.getPawnToCaptureEnPassent().board.getLivePieces(this.team.oponent()).remove(this.getPawnToCaptureEnPassent());
+			}
+			else
+				this.getPawnToCaptureEnPassent().board.game.capturePiece(this.getPawnToCaptureEnPassent());
+		}
 	}
 	
 	/**

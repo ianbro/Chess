@@ -39,6 +39,17 @@ public class Pawn extends Piece {
 	 */
 	private boolean hasMoved = false;
 	
+	/**
+	 * The move that represents an "en-passent" move. This is set any time an enemy pawn
+	 * uses its jump move (2 spaces at once for it's first move) in order to pass this
+	 * pawn. That enemy pawn will trigger the adding of this move when it moves net to
+	 * this pawn in the appropriate manner (2 squares at once). At the beginning of
+	 * this pawns opponents turn, all en-passent moves for this pawns team will be removed
+	 * because the right to capture en-passent will be forfeited (They didn't take the
+	 * move when they had the chance).
+	 */
+	private ArrayList<MovementPath> enPassentMoves = new ArrayList<MovementPath>();
+	
 	/* (non-Javadoc)
 	 * @see com.ianmann.chess.game.Piece#markMovedTo(com.ianmann.chess.game.movement.Square)
 	 */
@@ -51,6 +62,18 @@ public class Pawn extends Piece {
 	public void markMovedTo(Square _location) {
 		super.markMovedTo(_location);
 		this.hasMoved = true;
+		this.enPassentMoves.clear();
+	}
+	
+	public void addEnPassentMove(Pawn _oponent) {
+		System.out.println("adding en-passent");
+		MovementPath enPassentMove = new MovementPath(this.location, this.getOrientation(), _oponent);
+		if (enPassentMove.buildEnPassentMove())
+			this.enPassentMoves.add(enPassentMove);
+	}
+	
+	public void clearEnPassentMoves() {
+		this.enPassentMoves.clear();
 	}
 
 	/* (non-Javadoc)
@@ -71,7 +94,7 @@ public class Pawn extends Piece {
 			paths.add(pathForward);
 		
 		if (!this.hasMoved) {
-			MovementPath pathForwardDouble = new MovementPath(this.location, this.getOrientation(), false, this.team);
+			MovementPath pathForwardDouble = new MovementPath(this.location, this.getOrientation(), false, true, this.team);
 			pathForwardDouble.build(Direction.FORWARD, 2);
 			if (pathForwardDouble.size() > 0 && pathForwardDouble.finish(false) && !pathForwardDouble.getLast().hasPiece())
 				paths.add(pathForwardDouble);
@@ -92,6 +115,8 @@ public class Pawn extends Piece {
 				paths.add(pathForwardDiagLeft);
 		}
 		
+		paths.addAll(this.enPassentMoves);
+		
 		this.evaluateKingInCheck(paths);
 		
 		return paths;
@@ -101,6 +126,8 @@ public class Pawn extends Piece {
 	 * @Override Pawns may move forward one space if not blocked by any other piece. They may
 	 * also attack diagonally to the right or left if able to but may not move diagonally if
 	 * not attacking. If a pawn has not moved in the game yet, they may move forward 2 squares.
+	 * This method does not include any movement except for the movement that would allow the
+	 * pawn to take a piece.
 	 */
 	public ArrayList<MovementPath> getPathsAsIfCouldAttack() {
 		// TODO Auto-generated method stub
@@ -119,6 +146,8 @@ public class Pawn extends Piece {
 			if (pathForwardDiagLeft.finish(false))
 				paths.add(pathForwardDiagLeft);
 		}
+		
+		paths.addAll(this.enPassentMoves);
 		
 		return paths;
 	}

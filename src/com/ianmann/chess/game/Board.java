@@ -307,8 +307,10 @@ public class Board {
 	public boolean movePiece(String _fromCoordinates, String _toCoordinates) {
 		Square fromSquare = this.squares.get(_fromCoordinates);
 		Square toSquare = this.squares.get(_toCoordinates);
+		MovementPath pathToDestination = fromSquare.getPiece().canMove(toSquare);
+		
 		if (fromSquare.hasPiece())
-			if (fromSquare.getPiece().canMove(toSquare) == null) return false;
+			if (pathToDestination == null) return false;
 		if (fromSquare == null || toSquare == null)
 			return false;
 		if (!fromSquare.hasPiece())
@@ -316,7 +318,11 @@ public class Board {
 		if (toSquare.hasPiece(fromSquare.getPiece().team))
 			return false;
 
-		return toSquare.placePiece(fromSquare.getPiece());
+		boolean canMove = toSquare.placePiece(fromSquare.getPiece());
+		
+		pathToDestination.performSpecialEvents();
+		
+		return canMove;
 	}
 	
 	/**
@@ -347,9 +353,7 @@ public class Board {
 
 		boolean canMove = _toSquare.placePiece(_fromSquare.getPiece());
 		
-		if (pathToDestination.isCastle) {
-			pathToDestination.getCastlingRookDestination().placePiece(pathToDestination.getCastlingRook());
-		}
+		pathToDestination.performSpecialEvents();
 		
 		return canMove;
 	}

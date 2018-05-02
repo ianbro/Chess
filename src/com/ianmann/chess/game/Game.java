@@ -285,6 +285,12 @@ public class Game {
 	 */
 	public void beginNextTurn() {
 		this.currentTurnTeam = this.currentTurnTeam.oponent();
+		for (int i = 0; i < this.getLivePieces(this.currentTurnTeam.oponent()).size(); i ++) {
+			if (!Pawn.class.isInstance(this.getLivePieces(this.currentTurnTeam.oponent()).get(i)))
+				continue;
+			Pawn enemyPawn = (Pawn) this.getLivePieces(this.currentTurnTeam.oponent()).get(i);
+			enemyPawn.clearEnPassentMoves();
+		}
 		if (this.teamIsInCheckMate(this.currentTurnTeam))
 			System.out.println("Check mate!");
 		else if (this.teamIsInStaleMate(this.currentTurnTeam))
