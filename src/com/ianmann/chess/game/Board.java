@@ -295,11 +295,17 @@ public class Board {
 	}
 	
 	/**
+	 * <p>
 	 * Moves a piece from the square at _fromCoordinate to the square at _toCoordinate.
 	 * This will return true if the piece was successfully moved or false if not. If
 	 * either of the squares are not found, the from square doesn't' contain a piece
 	 * or the to square has a piece of the same team as that in to square, nothing
 	 * will happen and false will be returned.
+	 * </p>
+	 * <p>
+	 * After the move has been moved, if the move was successful, the {@link MovementPath#performSpecialEvents()}
+	 * method is called on the {@link MovementPath} that the piece moved along.
+	 * </p>
 	 * @param _fromCoordinates
 	 * @param _toCoordinates
 	 * @return
@@ -320,7 +326,7 @@ public class Board {
 
 		boolean canMove = toSquare.placePiece(fromSquare.getPiece());
 		
-		pathToDestination.performSpecialEvents();
+		if (canMove) pathToDestination.performSpecialEvents();
 		
 		return canMove;
 	}
@@ -335,6 +341,10 @@ public class Board {
 	 * <p>
 	 * This also checks to make sure that the piece in _fromSquare has a valid path to
 	 * _toSquare. In other words, This ensures that a pawn is not trying to move 4 squares.
+	 * </p>
+	 * <p>
+	 * After the move has been moved, if the move was successful, the {@link MovementPath#performSpecialEvents()}
+	 * method is called on the {@link MovementPath} that the piece moved along.
 	 * </p>
 	 * @param _fromCoordinates
 	 * @param _toCoordinates
@@ -353,7 +363,7 @@ public class Board {
 
 		boolean canMove = _toSquare.placePiece(_fromSquare.getPiece());
 		
-		pathToDestination.performSpecialEvents();
+		if (canMove) pathToDestination.performSpecialEvents();
 		
 		return canMove;
 	}

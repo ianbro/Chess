@@ -9,6 +9,7 @@ package com.ianmann.chess.game.movement;
 import java.util.LinkedList;
 
 import com.ianmann.chess.game.TeamColor;
+import com.ianmann.chess.game.pieces.King;
 import com.ianmann.chess.game.pieces.Pawn;
 import com.ianmann.chess.game.pieces.Rook;
 
@@ -295,6 +296,16 @@ public class MovementPath extends LinkedList<Square> {
 		return count;
 	}
 	
+	/**
+	 * Adds the castle move for a king in both the left and right direction. Each direction
+	 * is checked to make sure that the rook in that direction has not moved yet and that
+	 * there are no pieces in between blocking the castle. Checks based on wether or not the
+	 * king is moving into check will be run later by {@link King#evaluateMovesIntoCheck(java.util.ArrayList)}
+	 * after all {@link MovementPath}s have been added. It is also assumed in this method that
+	 * the king is not moving out of check, so that will have to be checked before calling
+	 * this method.
+	 * @return
+	 */
 	public boolean buildCastleMove() {
 		int kingMoveLength = 0;
 		if (this.castlingOrientation == Orientation.EAST) {
@@ -401,9 +412,14 @@ public class MovementPath extends LinkedList<Square> {
 		return this.size() > 0;
 	}
 	
+	/**
+	 * If this movement path is a leap by a pawn (moving 2 spaces at once), then this looks for
+	 * any opposing pawns that it tried to pass via the leap. If there are any, it alerts that
+	 * pawn that this pawn is trying to pass it so that it knows that it can take this pawn
+	 * via en-passent.
+	 */
 	private void alertPassedPawnsOfEnPassent() {
 		if (this.isPawnLeap) {
-			System.out.println("alerting");
 			Square eastNeighbor = this.getLast().neighbor(Orientation.EAST);
 			if (eastNeighbor.hasPiece(this.team.oponent()) && Pawn.class.isInstance(eastNeighbor.getPiece()))
 				((Pawn) eastNeighbor.getPiece()).addEnPassentMove((Pawn) this.getLast().getPiece());
@@ -414,19 +430,32 @@ public class MovementPath extends LinkedList<Square> {
 		}
 	}
 	
+	/**
+	 * Certain moves trigger events such as a castle move triggers the swapping places of the
+	 * king and the rook. These events are things that wouldn't normally happen on a regular
+	 * move. This performs those special events and is meant to be called after a piece uses
+	 * this {@link MovementPath} to move along.
+	 */
 	public void performSpecialEvents() {
-		System.out.println("performing special events");
 		if (this.isCastle)
-			this.getCastlingRookDestination().placePiece(this.getCastlingRook());
+			this.getCastlingRookDestination().placePiece(this.getCastlingRook()); // Move the rook in it's correct castle place.
 		if (this.isPawnLeap)
 			this.alertPassedPawnsOfEnPassent();
 		if (this.isEnPassent) {
 			if (this.getPawnToCaptureEnPassent().board.isSimulation) {
+				/*
+				 * If the board is a simulation, we don't want to use capturePiece() as that will effect the actual
+				 * state of the game. However, this is a simuation and so the game object should not worry about this
+				 * board. So it shouldn't perform logic on this board in case it also manipulates the game state. So
+				 * instead, we run the logic of removing the piece from the board here but not on the game object. This
+				 * way the logic is separated from the game object.
+				 * @TODO: Abstract this out to a method on the Board object.
+				 */
 				this.getPawnToCaptureEnPassent().getLocation().markPieceRemoved(this.getPawnToCaptureEnPassent());
 				this.getPawnToCaptureEnPassent().markMovedTo(null);
 				this.getPawnToCaptureEnPassent().board.getLivePieces(this.team.oponent()).remove(this.getPawnToCaptureEnPassent());
 			}
-			else
+			else // It's not a simulation so the capturing will effect the game state.
 				this.getPawnToCaptureEnPassent().board.game.capturePiece(this.getPawnToCaptureEnPassent());
 		}
 	}

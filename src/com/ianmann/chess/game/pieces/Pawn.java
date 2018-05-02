@@ -62,16 +62,24 @@ public class Pawn extends Piece {
 	public void markMovedTo(Square _location) {
 		super.markMovedTo(_location);
 		this.hasMoved = true;
-		this.enPassentMoves.clear();
+		this.clearEnPassentMoves();
 	}
 	
+	/**
+	 * Notify this {@link Pawn} that it can capture the _oponent en-passent using an en-passent
+	 * {@link MovementPath}.
+	 * @param _oponent
+	 */
 	public void addEnPassentMove(Pawn _oponent) {
-		System.out.println("adding en-passent");
 		MovementPath enPassentMove = new MovementPath(this.location, this.getOrientation(), _oponent);
 		if (enPassentMove.buildEnPassentMove())
 			this.enPassentMoves.add(enPassentMove);
 	}
 	
+	/**
+	 * At the end of this pawns turn, all en-passent moves are cleared. If it chose not to do
+	 * an en-passent move, then it has forfeited the right to do so in that instance.
+	 */
 	public void clearEnPassentMoves() {
 		this.enPassentMoves.clear();
 	}
